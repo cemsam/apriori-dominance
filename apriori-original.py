@@ -1,7 +1,9 @@
 import csv
+#import pandas as pd
+#from mlxtend.frequent_patterns  import association_rules
 from collections import defaultdict
 
-MINSUP = 0.2
+MINSUP = 0.4
 
 def readFromInputFile(fileName):
     # extract rows from csv file
@@ -12,7 +14,7 @@ def readFromInputFile(fileName):
         yield rowRecords
         print("rowRecords in csv file: ", rowRecords)
 
-def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequentItemSet):
+def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequentItemSet, lengthIter):
     localItemSet = set()
     itemSetFrequency = defaultdict(int)
 
@@ -32,7 +34,7 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequentItemSet):
         if support >= MINSUP:
             localItemSet.add(item)
 
-    print("frequent k-itemSet: ", localItemSet)
+    print("frequent ", lengthIter, "-itemSet: ", localItemSet)
     return localItemSet
 
 def joinSet(itemSet, itemSetLength):
@@ -56,7 +58,7 @@ if __name__ == "__main__":
 
     frequentItemSet = defaultdict(int)
 
-    itemSetWithMinSup = getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequentItemSet)
+    itemSetWithMinSup = getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequentItemSet, 1)
 
     currentSet = frequentItemSet
     lengthIter = 2
@@ -64,9 +66,11 @@ if __name__ == "__main__":
         currentSet = joinSet(currentSet, lengthIter)
         if currentSet == set([]):
             break
-        
+
         print("joinSet: ", currentSet)
-        itemSetWithMinSup = getItemSetWithMinSup(currentSet, transactionList, MINSUP, frequentItemSet)
+        itemSetWithMinSup = getItemSetWithMinSup(currentSet, transactionList, MINSUP, frequentItemSet, lengthIter)
         print("For length: ", lengthIter, " itemSetWithMinSup: ", itemSetWithMinSup)
         currentSet = itemSetWithMinSup
         lengthIter += 1
+
+        ## contingency table
