@@ -1,0 +1,1549 @@
+#LyX 2.3 created this file. For more info see http://www.lyx.org/
+\lyxformat 544
+\begin_document
+\begin_header
+\save_transient_properties true
+\origin unavailable
+\textclass article
+\begin_preamble
+\usepackage{titlesec}
+\usepackage{section}
+\usepackage{titling}
+\usepackage{multicol}
+\usepackage{algorithm,algpseudocode}
+
+\titleformat{\section}
+  {\normalfont\bf}{\thesection\ }{0.2em}{}
+\titlespacing*{\section}{0pt}{1em}{0pt}
+
+\titleformat{\subsection}
+  {\normalfont\it}{\thesubsection\ }{0.2em}{}
+\titlespacing*{\subsection}{0pt}{1em}{0pt}
+
+\titleformat{\subsubsection}[runin]
+  {\normalfont\it}{\thesubsubsection\ }{0.2em}{}
+\titlespacing{\subsubsection}{0.5em}{0em}{0.5em}
+
+\pretitle{\begin{center}\Huge\bf}
+\posttitle{\end{center}}
+\preauthor{\begin{center}}
+\postauthor{\end{center}}
+
+% New abstract environment
+\newenvironment{abstractics}
+    {
+	\noindent{\bf Abstract}\\
+    }
+    {
+	\par\addvspace{\baselineskip}
+    }
+
+\newenvironment{keywordsics}
+    {
+	\noindent{\bf Keywords}
+    }
+    {
+	\par\addvspace{\baselineskip}
+    }
+
+\newenvironment{papertypeics}
+    {
+	\noindent{\bf Paper Type}
+    }
+    {
+	\par\addvspace{2em}
+    }
+
+\usepackage{enumitem}
+\setenumerate{label=(\arabic*),itemsep=3pt,topsep=3pt}
+
+\pagestyle{empty}
+
+% Environment for quotations
+\newenvironment{longquote}
+{\begin{center}
+\begin{tabular}{l|p{0.9\textwidth}}\ &
+}
+{
+\end{tabular}
+\end{center}
+}
+\end_preamble
+\use_default_options true
+\maintain_unincluded_children false
+\begin_local_layout
+Format 66
+Style Abstract_ICS
+	LabelType Above
+	LabelString "Abstract"
+	LabelFont
+		Series Bold
+	EndFont
+	InTitle 0
+	LatexType Environment
+	LatexName abstractics
+	TopSep 1
+	BottomSep 1
+End
+
+Style Keywords_ICS
+	LabelType Above
+	LabelString "Keywords"
+	LabelFont
+		Series Bold
+	EndFont
+	InTitle 0
+	LatexType Environment
+	LatexName keywordsics
+	BottomSep 1
+End
+
+Style Paper_Type_ICS
+	LabelType Above
+	LabelString "Paper Type"
+	LabelFont
+		Series Bold
+	EndFont
+	InTitle 0
+	LatexType Environment
+	LatexName papertypeics
+	BottomSep 1
+End
+
+Style StandardInTitle
+	InTitle 1
+End
+
+Style LongQuote
+	Align	Left
+	TopSep	0.5
+	BottomSep	0.5
+	LeftMargin          MM
+	LatexType	Environment
+	LatexName	longquote
+	ParSep	0.5
+End
+\end_local_layout
+\language english
+\language_package default
+\inputencoding auto
+\fontencoding global
+\font_roman "palatino" "Equity Text A"
+\font_sans "default" "Lato"
+\font_typewriter "default" "Source Code Pro"
+\font_math "auto" "default"
+\font_default_family default
+\use_non_tex_fonts false
+\font_sc false
+\font_osf false
+\font_sf_scale 100 100
+\font_tt_scale 90 90
+\use_microtype true
+\use_dash_ligatures true
+\graphics default
+\default_output_format default
+\output_sync 0
+\bibtex_command default
+\index_command default
+\paperfontsize 12
+\spacing single
+\use_hyperref false
+\pdf_bookmarks true
+\pdf_bookmarksnumbered false
+\pdf_bookmarksopen false
+\pdf_bookmarksopenlevel 1
+\pdf_breaklinks false
+\pdf_pdfborder true
+\pdf_colorlinks true
+\pdf_backref false
+\pdf_pdfusetitle true
+\papersize a4paper
+\use_geometry true
+\use_package amsmath 1
+\use_package amssymb 1
+\use_package cancel 1
+\use_package esint 1
+\use_package mathdots 1
+\use_package mathtools 1
+\use_package mhchem 1
+\use_package stackrel 1
+\use_package stmaryrd 1
+\use_package undertilde 1
+\cite_engine basic
+\cite_engine_type default
+\biblio_style IEEEtran
+\use_bibtopic false
+\use_indices false
+\paperorientation portrait
+\suppress_date true
+\justification true
+\use_refstyle 1
+\use_minted 0
+\index Index
+\shortcut idx
+\color #008000
+\end_index
+\leftmargin 2cm
+\topmargin 3cm
+\rightmargin 3.5cm
+\bottommargin 2.5cm
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation skip
+\defskip medskip
+\is_math_indent 0
+\math_numbering_side default
+\quotes_style english
+\dynamic_quotes 0
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\html_math_output 0
+\html_css_as_file 0
+\html_be_strict false
+\end_header
+
+\begin_body
+
+\begin_layout Title
+Improvement in the Apriori algorithm to reduce execution time for association
+ rule mining
+\end_layout
+
+\begin_layout Author
+Cem Samiloglu
+\begin_inset Formula $^{\dagger}$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Address
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{center}
+\backslash
+em{}
+\backslash
+vspace{-3.5em}
+\end_layout
+
+\end_inset
+
+
+\begin_inset Formula $^{\dagger}$
+\end_inset
+
+Department of Computer Systems, TalTech, Estonia
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{center}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Abstract ICS
+In the current literature, several algorithms are proposed for the implementatio
+n of association rule mining in the field of data science such as Apriori,
+ FP-growth, Eclat etc.
+ These algorithms are analyzed and compared based on their use cases and
+ their efficiency in terms of execution time.
+ Apriori algorithm stands out in terms of its straightforward implementation
+ but also it has major drawbacks when its being applied to the large datasets.
+ In this paper, previously presented research on improving Apriori will
+ be studied in detail and an optimized version of the existing work in the
+ literature will be proposed.
+ The newly proposed algorithm will be implemented and executed on a large
+ real-world dataset for comparison in terms of efficiency.
+\end_layout
+
+\begin_layout Abstract ICS
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+thispagestyle{empty}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Keywords ICS
+Apriori algorithm; Algorithm optimization; Association rule; Data mining;
+ Execution time reduction
+\end_layout
+
+\begin_layout Section
+Introduction
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Introduction"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Nowadays, the data production rate is faster than it has ever been.
+ The advancements in computer hardware and database systems enabled us to
+ store huge amounts of data at cheaper costs.
+ Alongside that, with the evolution of information technologies there is
+ a big growth of data in science, engineering, medicine, business and in
+ almost every field.
+ 
+\end_layout
+
+\begin_layout Standard
+However, analyzing this data and extracting meaningful information becomes
+ a challenging task for humans since exponentially growing data is not possible
+ to be analyzed manually.
+ It simply exceedes our ability for comprehension.
+ As a result, dealing with this task in an automated manner is becoming
+ an important topic and gets more attention in the research field of data
+ mining 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Lakshmi2011conceptualoverviewdata"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Data mining is the extraction of unrevealed patterns and interesting knowledge.
+ It can play an important role in many organizations giving insight of patterns
+ in their data to make decisions, with the purpose of increasing revenue,
+ cutting costs etc.
+ It is also often referred as KDD (Knowledge Discovery in Databases) in
+ the literature.
+ There are many different techniques used in data mining such as anomaly
+ detection, clustering, classification, regression, association rule mining,
+ summarization etc.
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Fayyad1996DataMiningKnowledge"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Techniques used in data mining can be classified into two categories as
+ descriptive and predictive.
+ In descriptive data mining, what happened in the past is investigated by
+ analyzing past data.
+ Anomaly detection, clustering and association rule mining are some of the
+ descriptive data mining techniques.
+ Meanwhile, predictive data mining is used to identify what can happen in
+ the future based on the present data.
+ Classification, regression are some of the example techniques that belongs
+ to predictive data mining 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Prithiviraj2015ComparativeAnalysisAssociation"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Association rule mining is used to find frequent patterns, correlations
+ in a transactional database 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Solanki2015SurveyAssociationRule"
+literal "false"
+
+\end_inset
+
+.
+ The aim of this paper is to propose an improved version of Apriori algorithm
+ - one of the well-known algorithms used in association rule mining, to
+ reduce its execution time when being applied to a large dataset.
+\end_layout
+
+\begin_layout Standard
+In order to have a clear understanding of association rule mining at algorithms
+ used for this purpose, one should study some preliminary concepts presented
+ at Section 1.1.
+\end_layout
+
+\begin_layout Subsection
+Background
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Background"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Let us define the following:
+\end_layout
+
+\begin_layout Itemize
+𝐷 = {𝑇
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+
+, 𝑇
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+
+,\SpecialChar ldots
+, 𝑇
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+m
+\end_layout
+
+\end_inset
+
+}, a database contains a set of transactions where each transaction denoted
+ as 𝑇.
+ Each transaction is also associated with a unique identifier called its
+ 𝑇𝐼𝐷.
+ 
+\end_layout
+
+\begin_layout Itemize
+𝐼 = {𝑖
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+1
+\end_layout
+
+\end_inset
+
+, 𝑖
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+2
+\end_layout
+
+\end_inset
+
+,\SpecialChar ldots
+, 𝑖
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+m
+\end_layout
+
+\end_inset
+
+}, a set of items where each item is denoted as 𝑖.
+ Each transaction 𝑇 is a nonempty itemset such that 𝑇 ⊆ 𝐼.
+\end_layout
+
+\begin_layout Standard
+Then we can say if 𝑋 ⊆ 𝑇 is true; transaction 𝑇 contains X, a subset of
+ 𝐼.
+ 
+\end_layout
+
+\begin_layout Standard
+Association rules are if/then statements that uncover relationships of items
+ in a database 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Kumbhare2014OverviewAssociationRule"
+literal "false"
+
+\end_inset
+
+.
+ We can define an association rule as 𝑋 ⇒𝑌, meaning that whenever 𝑋 occurs,
+ there is a strong correlation of 𝑌 occuring.
+ Here 𝑋 and 𝑌 denotes the set of items that are included in transaction
+ 𝑇.
+\end_layout
+
+\begin_layout Itemize
+𝑋 ⇒𝑌, where 𝑋 ⊂ 𝐼, 𝑌 ⊂ 𝐼 and 𝑋 ∩ 𝑌 = {}, an empty set.
+\end_layout
+
+\begin_layout Standard
+There are two main interestingness measures used in association rule mining;
+ support and confidence.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+support
+\emph default
+(𝑋 ⇒𝑌) = 
+\emph on
+P
+\emph default
+(𝑋 ∪ 𝑌) = 
+\begin_inset Formula $\frac{Count\:of\:transactions\:containing\:items\:(𝑋∪𝑌)}{Total\:number\:of\:transactions\:in\:𝑇}$
+\end_inset
+
+, , is the percentage of transactions in 𝐷 that contains the union of sets
+ 𝑋 and 𝑌.
+\end_layout
+
+\begin_layout Itemize
+
+\emph on
+confidence
+\emph default
+(𝑋 ⇒𝑌) = 
+\emph on
+P
+\emph default
+(𝑋 | 𝑌) = 
+\begin_inset Formula $\frac{support(𝑋∪𝑌)}{support(𝑋)}$
+\end_inset
+
+, is the percentage of transactions in 𝐷 containing 𝑋 that also contains
+ 𝑌.
+\end_layout
+
+\begin_layout Standard
+Additionally, following two definitions are useful to comprehend the steps
+ of the algorithms that will be explained later on.
+\end_layout
+
+\begin_layout Itemize
+Frequent itemset, denoted as 𝐿
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+ can be described as the large k-itemsets that satisfies a support value.
+\end_layout
+
+\begin_layout Itemize
+Candidate itemset, denoted as 𝐶
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+ can be described as is any valid itemset that are potentially frequent
+ itemsets.
+\end_layout
+
+\begin_layout Section
+Literature Review
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Literature Review"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Association rule mining can be overviewed as a two-step approach as first,
+ discovering all frequent itemsets that have support value above the minimum
+ support treshold and second, use these frequent itemsets to generate associatio
+n rules that satisfy a minumum confidence treshold 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Agrawal1993Miningassociationrules"
+literal "false"
+
+\end_inset
+
+.
+ Throughout the years, many different algoritms are presented in the literature
+ to handle the task of association rule mining.
+ However, improvements are still needed in performance perspective because
+ of long execution time and heavy overload on memory of these algorithms.
+ Because the second step is much less costly than the first one, performance
+ of the algorithm is mainly dependent on the first step 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Chee2018Algorithmsfrequentitemset"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Many researchers have put effort into developing efficient algorithms for
+ association rule mining since the beginning of 1990's.
+ The key algorithms in the literature are examined in the following section.
+\end_layout
+
+\begin_layout Subsection
+AIS and SETM Algorithms
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:AIS and SETM Algorithms"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+AIS 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Agrawal1993Miningassociationrules"
+literal "false"
+
+\end_inset
+
+ is the first algorithm presented in the literature followed by SETM 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "HoutsmaSetorientedmining"
+literal "false"
+
+\end_inset
+
+, which was motivated by the aim of using SQL.
+ Candidate generation in both of these algorithms are on-the-fly during
+ passing over the database as the data is being read.
+ Then candidate itemsets are generated by extending frequent itemsets with
+ all other items in the transaction.
+ 
+\end_layout
+
+\begin_layout Standard
+Because of this specific attribute, they generate so many non-essential
+ candidate itemsets that eventually turned out to to not satisfying the
+ minimum support level 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Prithiviraj2015ComparativeAnalysisAssociation"
+literal "false"
+
+\end_inset
+
+.
+ AIS and SETM algorithms are not very popular nowadays due to their limitations
+ but they paved a foundation for the next algorithms to be developed in
+ the literature.
+\end_layout
+
+\begin_layout Subsection
+Apriori Algorithm
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Apriori Algorithm"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Following that, in 1994 Agrawal and Srikant proposed a more efficient algorithm
+ alternative to AIS and STEM, called Apriori 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Agrawal1994FastAlgorithmsMining"
+literal "false"
+
+\end_inset
+
+.
+ Main difference of Apriori compared to AIS and SETM was that in Apriori,
+ candidate itemsets are generated in a pass over the itemsets found frequent
+ in previous passing, without passing over all the transactions in the database.
+ This is because of the assumption that any subset of a frequent itemset
+ must be frequent.
+ Therefore, any subset of a non-frequent itemset is also not frequent.
+ Using this property, Apriori prunes the items which is not a subset of
+ a frequent itemset, resulting in a smaller number of candidate itemsets.
+\end_layout
+
+\begin_layout Standard
+Apriori employs an iterative approach known as a level-wise search, where
+ (𝑘-1)-itemsets are used to explore 𝑘-itemsets.
+ First passing over the database counts the frequency of each item and determine
+s frequent 1-itemsets.
+ The following passes, denoted as pass 𝑘, generates candidate itemsets 𝐶
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+ by finding the frequent itemsets 𝐿
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘-1
+\end_layout
+
+\end_inset
+
+during the (𝑘-1)th passing.
+ Then database is scanned again to count frequency of each candidate in
+ 𝐶
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1] 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State{$L_{1}$ = {frequent 1-itemsets}}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+For{$k=2$; $L_{k-1}$!= emptyset; $k++$}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State{$C_{k}$ = apriori-gen$(L_{k-1})$} 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+For{all transactions $t$ in $D$}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State{$C_{t}$ = subset$(C_{k},t)$}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+For{all candidates $c$ in $C_{t}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State{$c$.count++}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State{$L_{k}$ = (c in $C_{k}$| $c$.count >= minsup)}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndFor 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Apriori Algorithm
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The candidate generation of Apriori, called apriori-gen returns a superset
+ of all frequent 𝑘-itemsets from frequent (𝑘-1)-itemsets.
+ It consists of two steps, join and prune.
+ In the join step, basically frequent (𝑘-1)-itemsets are joined with each
+ other, 𝐿
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘-1
+\end_layout
+
+\end_inset
+
+⊠ 𝐿
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘-1
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1] 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State{insert into $C_{k}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State{select $p$.$item_{1}$, $p$.$item_{2}$, ..., $p$.$item_{k-1}$, $q$.$item_{k-1}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State{from $L_{k-1}$ $p$, $L_{k-1}$ $q$}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State{where $p$.$item_{1}$ = $q$.$item_{1}$}, ..., $p$.$item_{k-2}$ = $q$.$item_{k-2}$,
+ $p$.$item_{k-1}$ < $q$.$item_{k-1}$
+\end_layout
+
+\begin_layout Plain Layout
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Join step of apriori-gen
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then in the prune step, all itemsets 𝑐 present in candidate itemsets 𝐶
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+, is removed if (𝑘-1)-subset of 𝑐 is not present in 𝐿
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘-1
+\end_layout
+
+\end_inset
+
+.
+ By doing so, the final output of 𝐶
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+ is going to be smaller and thus while generating 𝐶
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘+1
+\end_layout
+
+\end_inset
+
+from 𝐿
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+in the next step the total number of items will be less.
+ This applies to all 𝑘-itemsets since this is an iterative approach.
+ 
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{algorithmic}[1] 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+For{all itemsets $c$ in $C_{k}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+For{all $k$-1 subsets $s$ of $c$}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+If{$s$ is not in $L_{k-1}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+State{delete $c$ from $C_{k}$}
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndIf
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndFor
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+EndFor 
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{algorithmic}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption Standard
+
+\begin_layout Plain Layout
+Prune step of apriori-gen
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It is clear that Apriori was a step forward compared to AIS and SETM since
+ it improved the candidate generation.
+ However, this is still a very costly step and time complexity of Apriori
+ is O(2
+\begin_inset script superscript
+
+\begin_layout Plain Layout
+𝑛
+\end_layout
+
+\end_inset
+
+) + O(2
+\begin_inset script superscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+) where 𝑛 is the number of items in the database and 𝑘 is the length of
+ the itemsets respectively 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Telikani2020surveyevolutionarycomputation"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+FP-growth Algorithm
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:FP-growth Algorithm"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Consequently another algorithm called FP-growth is proposed in 2000 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Han2000Miningfrequentpatterns"
+literal "false"
+
+\end_inset
+
+.
+ It was a divide-and-conquer method that introduced a novel approach by
+ compressing the database into a frequent pattern tree structure for mining
+ the frequent patterns by pattern fragment growth.
+ By compressing the database into a condensed data structure, frequent scanning
+ of the database is improved.
+ Moreover, thanks to its pattern fragment method, huge generation of candidate
+ itemsets is avoided compared to Apriori.
+ FP-growth was able to run about an order of magnitude faster than Apriori.
+ However, its recursion nature imposed difficulties in terms of space requiremen
+ts when database is very large and sparse 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Luna2019Frequentitemsetmining"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Eclat Algorithm
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Eclat Algorithm"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Another key algorithm presented in literature was Eclat by Zaki 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Zaki2000Scalablealgorithmsassociation"
+literal "false"
+
+\end_inset
+
+.
+ It uses a vertical data format in which data is presented as {
+\emph on
+item
+\emph default
+ : 
+\emph on
+TID_se
+\emph default
+t}, 
+\emph on
+item 
+\emph default
+being the item name and
+\emph on
+ TID_set 
+\emph default
+as transaction identifier.
+ Comparing to Apriori and FP-growth, where they use horizontal data format
+ which is in the form {
+\emph on
+TID : itemset
+\emph default
+}.
+ Thanks to this different representation of data, Eclat was able to calculate
+ frequency of each itemset by just taking the number of elements in the
+ list, so database does not need to be scanned multiple times.
+ It scans the database once to transform the data from horizontal format
+ to vertical format.
+ Then two itemsets can be joined by intersecting their lists.
+ Again this algorithm was not efficient when applied on large databases
+ because of intersecting frequent lists of transactions 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Chee2018Algorithmsfrequentitemset"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+After few years Zaki and Gouda proposed an improved version of Eclat called
+ dEclat 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Zaki2003Fastverticalmining"
+literal "false"
+
+\end_inset
+
+ which based on keeping track of differences in the transactions where a
+ candidate pattern appears compared to its generating frequent patterns
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Luna2019Frequentitemsetmining"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsection
+Improved Apriori Algorithms
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Improved Apriori Algorithms"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Several algorithms are developed to improve original Apriori algorithm.
+ It can be observed that the majority of them tries to address candidate
+ generation step.
+ As mentioned previously, this is the most costly step in the original Apriori
+ implementation.
+ 
+\end_layout
+
+\begin_layout Standard
+In a paper published by Yabing 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Yabing2013ResearchImprovedApriori"
+literal "false"
+
+\end_inset
+
+, before candidate itemsets 𝐶
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+ is generated, 𝐿
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘-1
+\end_layout
+
+\end_inset
+
+ is further pruned.
+ Its basis is a very simple approach where all the itemsets in 𝐿
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘-1
+\end_layout
+
+\end_inset
+
+ is compared with the number 𝑘-1, and if the itemset is less than that it
+ will be pruned out.
+ Resulting in a smaller sized 𝐶
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+ at the end of the iteration.
+\end_layout
+
+\begin_layout Standard
+Another approach was presented in a paper by Al-Maolegi and Arkok in 2014
+ 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "AlMaolegi2014ImprovedAprioriAlgorithm"
+literal "false"
+
+\end_inset
+
+ where the aim was to reduce the number of scannings of the database.
+ This is achieved by splitting the items in a frequent itemset 𝐿
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘-1
+\end_layout
+
+\end_inset
+
+, then determining which one has the minimum frequency.
+ Algorithm will continue to scan for 𝐶
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+ in only these specific transactions.
+ In the original Apriori, this is not present and all transactions are scanned
+ in each iteration.
+ This improvement has reduced the execution time during candidate generation
+ considerably.
+\end_layout
+
+\begin_layout Standard
+An interesting proposal was made in in the basis of having a dynamic minimum
+ support count 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Gao2019MiningFrequentItemsets"
+literal "false"
+
+\end_inset
+
+.
+ First the database is transformed into vertical data format.
+ Then at each iteration, minimum support level is updated as following:
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+support
+\emph default
+(
+\emph on
+Smin
+\emph default
+) = 
+\begin_inset Formula $\frac{Sum(Support\:count\:of\:all\:items)}{Number\:of\:unique\:transactions}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Based on this support value, items are prunned from candidate itemset 𝐶
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+ before determining frequent itemsets 𝐿
+\begin_inset script subscript
+
+\begin_layout Plain Layout
+𝑘
+\end_layout
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Motivation and Research Gaps
+\begin_inset CommandInset label
+LatexCommand label
+name "sec:Motivation and Research Gaps"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+As it can be seen from the previous section, improved Apriori algorithms
+ use different approaches to address large candidate generation problem.
+ They optimize Apriori up to some extent.
+ However, all of the algorithms examined only relies on one measure, support
+ count.
+ And this is one of the gaps in the literature.
+ There are several interestingness measures in statistics 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Le2015supportconfidenceExploring"
+literal "false"
+
+\end_inset
+
+ that can be utilized in Apriori as well.
+\end_layout
+
+\begin_layout Standard
+In a recent study published in 2023 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "HeidariIman2023automatedmethodmining"
+literal "false"
+
+\end_inset
+
+, multiple interestingness measures are used for mining high quality assertion
+ sets.
+ The interestingness measures used are support, CC and IS that are presented
+ in a study 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Tan2000InterestingnessMeasuresAssociation"
+literal "false"
+
+\end_inset
+
+ that shows favorable results in association patterns.
+ Then another novel approach called dominance algorithm 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Bouker2014MiningUndominatedAssociation"
+literal "false"
+
+\end_inset
+
+, is applied to evaluate high quality assertion sets.
+\end_layout
+
+\begin_layout Standard
+The dominance algorithm is successfully used in mining assertions and it
+ can be used in association rules as well.
+ In fact there is a study that implements dominance in association rules,
+ based on three different interestingness measures; frequency, confidence
+ and pearl 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Bouker2012RankingSelectingAssociation"
+literal "false"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+But this proposal implemented dominance on the rules itself.
+ Association rule mining is a two step process as mentioned earlier, and
+ candidate generation is the costly step.
+ Dominance can also be applied in Apriori algorithm during candidate generation
+ step to prune uninteresting candidate sets, thus improving efficiency overall.
+\end_layout
+
+\begin_layout Standard
+In the further progress of this thesis, this approach is going to be implemented
+ and compared with Apriori using large databases.
+\end_layout
+
+\begin_layout Standard
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+btprint "btPrintCited"
+bibfiles "final_report"
+options "bibtotoc,IEEEtran"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
