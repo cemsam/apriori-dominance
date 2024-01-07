@@ -99,6 +99,8 @@ def generateLargeItemSets(candidateItemSet):
                 elif (tempItem[0] not in transaction) and (tempItem[0+1] not in transaction):
                     tempTables[lengthIter].data00 += 1
 
+
+            print("TABLE for:", itemSet)
             tempTables[lengthIter].data1X = tempTables[lengthIter].data11 + tempTables[lengthIter].data10
             tempTables[lengthIter].dataX0 = tempTables[lengthIter].data10 + tempTables[lengthIter].data00
             tempTables[lengthIter].dataX1 = tempTables[lengthIter].data11 + tempTables[lengthIter].data01 
@@ -107,11 +109,10 @@ def generateLargeItemSets(candidateItemSet):
             
             # calculate supp, CC, IS measures for each table
             tempTables[lengthIter].supp = tempTables[lengthIter].data11 / tempTables[lengthIter].dataXX
-            tempTables[lengthIter].CC = math.sqrt(tempTables[lengthIter].data0X * tempTables[lengthIter].data1X * tempTables[lengthIter].dataX1 * tempTables[lengthIter].dataX0) if (tempTables[lengthIter].data11 * tempTables[lengthIter].data00) - (tempTables[lengthIter].data01 * tempTables[lengthIter].data10) / math.sqrt(tempTables[lengthIter].data0X * tempTables[lengthIter].data1X * tempTables[lengthIter].dataX1 * tempTables[lengthIter].dataX0) else 0
+            #tempTables[lengthIter].CC = math.sqrt(tempTables[lengthIter].data0X * tempTables[lengthIter].data1X * tempTables[lengthIter].dataX1 * tempTables[lengthIter].dataX0) if (tempTables[lengthIter].data11 * tempTables[lengthIter].data00) - (tempTables[lengthIter].data01 * tempTables[lengthIter].data10) / math.sqrt(tempTables[lengthIter].data0X * tempTables[lengthIter].data1X * tempTables[lengthIter].dataX1 * tempTables[lengthIter].dataX0) else 0
             tempTables[lengthIter].IS = math.sqrt((tempTables[lengthIter].data11 * tempTables[lengthIter].data11) / abs((tempTables[lengthIter].dataX1 - tempTables[lengthIter].dataX0) * (tempTables[lengthIter].data1X - tempTables[lengthIter].data0X)))
 
             tempItem.clear()
-            print("TABLE for:", itemSet)
             print("| ", tempTables[lengthIter].data11, " | ", tempTables[lengthIter].data10, " | ", tempTables[lengthIter].data1X, " |")
             print("| ", tempTables[lengthIter].data01, " | ", tempTables[lengthIter].data00, " | ", tempTables[lengthIter].data0X, " |")
             print("| ", tempTables[lengthIter].dataX1, " | ", tempTables[lengthIter].dataX0, " | ", tempTables[lengthIter].dataXX, " |")
