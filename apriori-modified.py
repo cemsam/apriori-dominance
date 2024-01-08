@@ -82,7 +82,7 @@ def generateLargeItemSets(candidateItemSet):
         largeItemSets[lengthIter - 1] = currentLargeItemSet
         currentLargeItemSet = joinSet(currentLargeItemSet, lengthIter)
 
-        tempItem=[]
+        tempItem = []
         tempTables = {}
         for itemSet in currentLargeItemSet:
             for item in itemSet:
@@ -90,13 +90,13 @@ def generateLargeItemSets(candidateItemSet):
 
             tempTables[lengthIter] = contingencyTable()
             for transaction in transactionList:
-                if (tempItem[0] in transaction) and (tempItem[0+1] in transaction):
+                if (tempItem[0] in transaction) and (tempItem[1] in transaction):
                     tempTables[lengthIter].data11 += 1
-                elif (tempItem[0] in transaction) and (tempItem[0+1] not in transaction):
+                elif (tempItem[0] in transaction) and (tempItem[1] not in transaction):
                     tempTables[lengthIter].data10 += 1
-                elif (tempItem[0] not in transaction) and (tempItem[0+1] in transaction):
+                elif (tempItem[0] not in transaction) and (tempItem[1] in transaction):
                     tempTables[lengthIter].data01 += 1
-                elif (tempItem[0] not in transaction) and (tempItem[0+1] not in transaction):
+                elif (tempItem[0] not in transaction) and (tempItem[1] not in transaction):
                     tempTables[lengthIter].data00 += 1
 
 
