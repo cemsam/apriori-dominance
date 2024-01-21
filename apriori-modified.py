@@ -75,6 +75,21 @@ def extractItemSetAndTransactionList(rowRecords):
     #print("transactionList: ", transactionList)
     return itemSet, transactionList
 
+def calculateMeasures(table):
+    if table.data1X == 0:
+        table.data1X = 1
+    if table.data0X == 0:
+        table.data0X = 1
+    if table.dataX1 == 0:
+        table.data1X = 1
+    if table.dataX0 == 0:
+        table.dataX0 = 1
+
+    table.supp = round(table.data11 / table.dataXX, 3)
+    table.CC = round(math.sqrt(table.data0X * table.data1X * table.dataX1 * table.dataX0) if (table.data11 * table.data00) - (table.data01 * table.data10) / math.sqrt(table.data0X * table.data1X * table.dataX1 * table.dataX0) else 0, 3)
+    table.IS = round(math.sqrt((table.data11 * table.data11) / abs((table.dataX1 - table.dataX0) * (table.data1X - table.data0X))), 3)
+    return table
+
 def generateLargeItemSets(candidateItemSet):
     currentLargeItemSet = candidateItemSet
     lengthIter = 2 # start from 2-itemsets
@@ -103,19 +118,21 @@ def generateLargeItemSets(candidateItemSet):
             print("TABLE for:", itemSet)
             tempTables[lengthIter].data1X = tempTables[lengthIter].data11 + tempTables[lengthIter].data10
             tempTables[lengthIter].dataX0 = tempTables[lengthIter].data10 + tempTables[lengthIter].data00
-            tempTables[lengthIter].dataX1 = tempTables[lengthIter].data11 + tempTables[lengthIter].data01 
+            tempTables[lengthIter].dataX1 = tempTables[lengthIter].data11 + tempTables[lengthIter].data01
             tempTables[lengthIter].data0X = tempTables[lengthIter].data01 + tempTables[lengthIter].data00
             tempTables[lengthIter].dataXX = tempTables[lengthIter].data1X + tempTables[lengthIter].data0X
+
+            calculateMeasures(tempTables[lengthIter])
             
             # calculate supp, CC, IS measures for each table
-            tempTables[lengthIter].supp = tempTables[lengthIter].data11 / tempTables[lengthIter].dataXX
+            #tempTables[lengthIter].supp = tempTables[lengthIter].data11 / tempTables[lengthIter].dataXX
             #tempTables[lengthIter].CC = math.sqrt(tempTables[lengthIter].data0X * tempTables[lengthIter].data1X * tempTables[lengthIter].dataX1 * tempTables[lengthIter].dataX0) if (tempTables[lengthIter].data11 * tempTables[lengthIter].data00) - (tempTables[lengthIter].data01 * tempTables[lengthIter].data10) / math.sqrt(tempTables[lengthIter].data0X * tempTables[lengthIter].data1X * tempTables[lengthIter].dataX1 * tempTables[lengthIter].dataX0) else 0
-            tempTables[lengthIter].IS = math.sqrt((tempTables[lengthIter].data11 * tempTables[lengthIter].data11) / abs((tempTables[lengthIter].dataX1 - tempTables[lengthIter].dataX0) * (tempTables[lengthIter].data1X - tempTables[lengthIter].data0X)))
+            #tempTables[lengthIter].IS = math.sqrt((tempTables[lengthIter].data11 * tempTables[lengthIter].data11) / abs((tempTables[lengthIter].dataX1 - tempTables[lengthIter].dataX0) * (tempTables[lengthIter].data1X - tempTables[lengthIter].data0X)))
 
             tempItem.clear()
-            print("| ", tempTables[lengthIter].data11, " | ", tempTables[lengthIter].data10, " | ", tempTables[lengthIter].data1X, " |")
-            print("| ", tempTables[lengthIter].data01, " | ", tempTables[lengthIter].data00, " | ", tempTables[lengthIter].data0X, " |")
-            print("| ", tempTables[lengthIter].dataX1, " | ", tempTables[lengthIter].dataX0, " | ", tempTables[lengthIter].dataXX, " |")
+            print("| ", tempTables[lengthIter].data11, " | ", tempTables[lengthIter].data10, " | ", tempTables[lengthIter].data1X)
+            print("| ", tempTables[lengthIter].data01, " | ", tempTables[lengthIter].data00, " | ", tempTables[lengthIter].data0X)
+            print("  ", tempTables[lengthIter].dataX1, "   ", tempTables[lengthIter].dataX0, "   ", tempTables[lengthIter].dataXX)
             print("MEASURES supp:", tempTables[lengthIter].supp, " CC: ", tempTables[lengthIter].CC, " IS: ", tempTables[lengthIter].IS)  
 
             #print("TABLE data11: ", tempTables[lengthIter].data11, " data10: ", tempTables[lengthIter].data10, " data01: ", tempTables[lengthIter].data01, " data00: ", tempTables[lengthIter].data00)
