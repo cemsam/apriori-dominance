@@ -90,55 +90,76 @@ def calculateMeasures(table):
     table.IS = round(math.sqrt((table.data11 * table.data11) / abs((table.dataX1 - table.dataX0) * (table.data1X - table.data0X))), 3)
     return table
 
+def generateUniqueSubsetsTuple(frozen):
+    # Convert from frozenlist to list
+    itemSet = list(frozen)
+
+    # Initialize an empty list to store subsets
+    subsets = []
+
+    # Iterate through all possible subset sizes
+    for r in range(len(itemSet) + 1):
+        # Generate all combinations of size r
+        for subset in combinations(itemSet, r):
+            # Create a tuple with the current subset and its complement
+            currentTuple = (list(subset), [item for item in itemSet if item not in subset])
+            subsets.append(currentTuple)
+
+    # Return the first half of subsets to avoid duplicates
+    uniqueSubsets = subsets[1:math.trunc(len(subsets) / 2)]
+
+    return uniqueSubsets
+
+def createBaseTable(table, subset):
+    for transaction in transactionList:
+        if (all(item in transaction for item in subset[0]) and (all(item in transaction for item in subset[1]))):
+            table.data11 += 1
+        elif (all(item in transaction for item in subset[0]) and not (all(item in transaction for item in subset[1]))):
+            table.data10 += 1
+        elif (not all(item in transaction for item in subset[0]) and (all(item in transaction for item in subset[1]))):
+            table.data01 += 1
+        elif (not all(item in transaction for item in subset[0]) and not (all(item in transaction for item in subset[1]))):
+            table.data00 += 1
+
+    table.data1X = table.data11 + table.data10
+    table.dataX0 = table.data10 + table.data00
+    table.dataX1 = table.data11 + table.data01
+    table.data0X = table.data01 + table.data00
+    table.dataXX = table.data1X + table.data0X
+    
+    return table
+
 def generateLargeItemSets(candidateItemSet):
     currentLargeItemSet = candidateItemSet
     lengthIter = 2 # start from 2-itemsets
     while (currentLargeItemSet != set([])):
         largeItemSets[lengthIter - 1] = currentLargeItemSet
         currentLargeItemSet = joinSet(currentLargeItemSet, lengthIter)
+        print("currentLargeItemSet: ", currentLargeItemSet)
 
         tempItem = []
         tempTables = {}
         for itemSet in currentLargeItemSet:
-            for item in itemSet:
-                tempItem.append(item)
+            print("itemSet: ", itemSet)
+            uniqueSubsets = generateUniqueSubsetsTuple(itemSet)
 
-            tempTables[lengthIter] = contingencyTable()
-            for transaction in transactionList:
-                if (tempItem[0] in transaction) and (tempItem[1] in transaction):
-                    tempTables[lengthIter].data11 += 1
-                elif (tempItem[0] in transaction) and (tempItem[1] not in transaction):
-                    tempTables[lengthIter].data10 += 1
-                elif (tempItem[0] not in transaction) and (tempItem[1] in transaction):
-                    tempTables[lengthIter].data01 += 1
-                elif (tempItem[0] not in transaction) and (tempItem[1] not in transaction):
-                    tempTables[lengthIter].data00 += 1
+            # loop over unique subsets of a large itemset
+            tableCount = 0
+            for uniqueSubset in uniqueSubsets:
+                tempTables[lengthIter] = list()
+                tempTables[lengthIter].append(tableCount)
+                tempTables[lengthIter][tableCount] = contingencyTable()
 
+                tempTables[lengthIter][tableCount] = createBaseTable(tempTables[lengthIter][tableCount], uniqueSubset)
 
-            print("TABLE for:", itemSet)
-            tempTables[lengthIter].data1X = tempTables[lengthIter].data11 + tempTables[lengthIter].data10
-            tempTables[lengthIter].dataX0 = tempTables[lengthIter].data10 + tempTables[lengthIter].data00
-            tempTables[lengthIter].dataX1 = tempTables[lengthIter].data11 + tempTables[lengthIter].data01
-            tempTables[lengthIter].data0X = tempTables[lengthIter].data01 + tempTables[lengthIter].data00
-            tempTables[lengthIter].dataXX = tempTables[lengthIter].data1X + tempTables[lengthIter].data0X
+                print("TABLE for uniqueSubset:", uniqueSubset)
 
-            calculateMeasures(tempTables[lengthIter])
-            
-            # calculate supp, CC, IS measures for each table
-            #tempTables[lengthIter].supp = tempTables[lengthIter].data11 / tempTables[lengthIter].dataXX
-            #tempTables[lengthIter].CC = math.sqrt(tempTables[lengthIter].data0X * tempTables[lengthIter].data1X * tempTables[lengthIter].dataX1 * tempTables[lengthIter].dataX0) if (tempTables[lengthIter].data11 * tempTables[lengthIter].data00) - (tempTables[lengthIter].data01 * tempTables[lengthIter].data10) / math.sqrt(tempTables[lengthIter].data0X * tempTables[lengthIter].data1X * tempTables[lengthIter].dataX1 * tempTables[lengthIter].dataX0) else 0
-            #tempTables[lengthIter].IS = math.sqrt((tempTables[lengthIter].data11 * tempTables[lengthIter].data11) / abs((tempTables[lengthIter].dataX1 - tempTables[lengthIter].dataX0) * (tempTables[lengthIter].data1X - tempTables[lengthIter].data0X)))
+                calculateMeasures(tempTables[lengthIter][tableCount])
 
-            tempItem.clear()
-            print("| ", tempTables[lengthIter].data11, " | ", tempTables[lengthIter].data10, " | ", tempTables[lengthIter].data1X)
-            print("| ", tempTables[lengthIter].data01, " | ", tempTables[lengthIter].data00, " | ", tempTables[lengthIter].data0X)
-            print("  ", tempTables[lengthIter].dataX1, "   ", tempTables[lengthIter].dataX0, "   ", tempTables[lengthIter].dataXX)
-            print("MEASURES supp:", tempTables[lengthIter].supp, " CC: ", tempTables[lengthIter].CC, " IS: ", tempTables[lengthIter].IS)  
-
-            #print("TABLE data11: ", tempTables[lengthIter].data11, " data10: ", tempTables[lengthIter].data10, " data01: ", tempTables[lengthIter].data01, " data00: ", tempTables[lengthIter].data00)
-            #print("TABLE data1X: ", tempTables[lengthIter].data1X, " dataX0: ", tempTables[lengthIter].dataX0, " dataX1: ", tempTables[lengthIter].dataX1, " data0X: ", tempTables[lengthIter].data0X, " dataXX: ", tempTables[lengthIter].dataXX)
-            #print("MEASURES supp:", tempTables[lengthIter].supp, " CC: ", tempTables[lengthIter].CC, " IS: ", tempTables[lengthIter].IS)  
-        
+                print("| ", tempTables[lengthIter][tableCount].data11, " | ", tempTables[lengthIter][tableCount].data10, " | ", tempTables[lengthIter][tableCount].data1X)
+                print("| ", tempTables[lengthIter][tableCount].data01, " | ", tempTables[lengthIter][tableCount].data00, " | ", tempTables[lengthIter][tableCount].data0X)
+                print("  ", tempTables[lengthIter][tableCount].dataX1, "   ", tempTables[lengthIter][tableCount].dataX0, "   ", tempTables[lengthIter][tableCount].dataXX)
+                print("MEASURES supp:", tempTables[lengthIter][tableCount].supp, " CC: ", tempTables[lengthIter][tableCount].CC, " IS: ", tempTables[lengthIter][tableCount].IS)  
 
         if currentLargeItemSet == set([]):
             break
