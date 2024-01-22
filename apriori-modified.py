@@ -145,8 +145,8 @@ def generateLargeItemSets(candidateItemSet):
 
             # loop over unique subsets of a large itemset
             tableCount = 0
+            tempTables[lengthIter] = list()
             for uniqueSubset in uniqueSubsets:
-                tempTables[lengthIter] = list()
                 tempTables[lengthIter].append(tableCount)
                 tempTables[lengthIter][tableCount] = contingencyTable()
 
@@ -160,6 +160,7 @@ def generateLargeItemSets(candidateItemSet):
                 print("| ", tempTables[lengthIter][tableCount].data01, " | ", tempTables[lengthIter][tableCount].data00, " | ", tempTables[lengthIter][tableCount].data0X)
                 print("  ", tempTables[lengthIter][tableCount].dataX1, "   ", tempTables[lengthIter][tableCount].dataX0, "   ", tempTables[lengthIter][tableCount].dataXX)
                 print("MEASURES supp:", tempTables[lengthIter][tableCount].supp, " CC: ", tempTables[lengthIter][tableCount].CC, " IS: ", tempTables[lengthIter][tableCount].IS)  
+                tableCount += 1
 
         if currentLargeItemSet == set([]):
             break
