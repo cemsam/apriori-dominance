@@ -5,8 +5,8 @@ from collections import defaultdict
 from itertools import chain, combinations
 import math
 
-MINSUP = 0.6
-MINCONF = 0.6
+MINSUP = 0.1
+MINCONF = 0.2
 
 class contingencyTable:
     data11 = 0
@@ -81,7 +81,7 @@ def calculateMeasures(table):
     if table.data0X == 0:
         table.data0X = 1
     if table.dataX1 == 0:
-        table.data1X = 1
+        table.dataX1 = 1
     if table.dataX0 == 0:
         table.dataX0 = 1
 
