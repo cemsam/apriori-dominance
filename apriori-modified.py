@@ -5,8 +5,8 @@ from collections import defaultdict
 from itertools import chain, combinations
 import math
 
-MINSUP = 0.1
-MINCONF = 0.2
+MINSUP = 0.008
+MINCONF = 0.1
 
 class contingencyTable:
     data11 = 0
@@ -19,6 +19,7 @@ class contingencyTable:
     data0X = 0
     dataXX = 0
     supp = 0
+    conf = 0
     CC = 0
     IS = 0
 
@@ -68,8 +69,8 @@ def extractItemSetAndTransactionList(rowRecords):
         transaction = frozenset(rowRecord)
         transactionList.append(transaction)
         for item in transaction:
-            if not ("T" in item):
-                itemSet.add(frozenset([item]))
+            #if not ("T" in item):
+            itemSet.add(frozenset([item]))
 
     #print("itemset: ", itemSet)
     #print("transactionList: ", transactionList)
@@ -86,7 +87,8 @@ def calculateMeasures(table):
         table.dataX0 = 1
 
     table.supp = round(table.data11 / table.dataXX, 3)
-    table.CC = round(math.sqrt(table.data0X * table.data1X * table.dataX1 * table.dataX0) if (table.data11 * table.data00) - (table.data01 * table.data10) / math.sqrt(table.data0X * table.data1X * table.dataX1 * table.dataX0) else 0, 3)
+    table.conf = round(table.data11 / table.data1X, 3)
+    #table.CC = round(math.sqrt(table.data0X * table.data1X * table.dataX1 * table.dataX0) if (table.data11 * table.data00) - (table.data01 * table.data10) / math.sqrt(table.data0X * table.data1X * table.dataX1 * table.dataX0) else 0, 3)
     table.IS = round(math.sqrt((table.data11 * table.data11) / abs((table.dataX1 - table.dataX0) * (table.data1X - table.data0X))), 3)
     return table
 
@@ -136,34 +138,50 @@ def generateLargeItemSets(candidateItemSet):
         largeItemSets[lengthIter - 1] = currentLargeItemSet
         currentLargeItemSet = joinSet(currentLargeItemSet, lengthIter)
         print("currentLargeItemSet: ", currentLargeItemSet)
-
-        tempItem = []
-        tempTables = {}
-        for itemSet in currentLargeItemSet:
-            print("itemSet: ", itemSet)
-            uniqueSubsets = generateUniqueSubsetsTuple(itemSet)
-
-            # loop over unique subsets of a large itemset
-            tableCount = 0
-            tempTables[lengthIter] = list()
-            for uniqueSubset in uniqueSubsets:
-                tempTables[lengthIter].append(tableCount)
-                tempTables[lengthIter][tableCount] = contingencyTable()
-
-                tempTables[lengthIter][tableCount] = createBaseTable(tempTables[lengthIter][tableCount], uniqueSubset)
-
-                print("TABLE for uniqueSubset:", uniqueSubset)
-
-                calculateMeasures(tempTables[lengthIter][tableCount])
-
-                print("| ", tempTables[lengthIter][tableCount].data11, " | ", tempTables[lengthIter][tableCount].data10, " | ", tempTables[lengthIter][tableCount].data1X)
-                print("| ", tempTables[lengthIter][tableCount].data01, " | ", tempTables[lengthIter][tableCount].data00, " | ", tempTables[lengthIter][tableCount].data0X)
-                print("  ", tempTables[lengthIter][tableCount].dataX1, "   ", tempTables[lengthIter][tableCount].dataX0, "   ", tempTables[lengthIter][tableCount].dataXX)
-                print("MEASURES supp:", tempTables[lengthIter][tableCount].supp, " CC: ", tempTables[lengthIter][tableCount].CC, " IS: ", tempTables[lengthIter][tableCount].IS)  
-                tableCount += 1
-
         if currentLargeItemSet == set([]):
             break
+        
+        # dont create tables for less and equal than 2-itemsets
+        if lengthIter > 2:
+            tempTables = {}
+            for itemSet in currentLargeItemSet:
+                print("itemSet: ", itemSet)
+                uniqueSubsets = generateUniqueSubsetsTuple(itemSet)
+
+                # loop over unique subsets of a large itemset
+                tableCount = 0
+                tempTables[lengthIter] = list()
+                for uniqueSubset in uniqueSubsets:
+                    tempTables[lengthIter].append(tableCount)
+                    tempTables[lengthIter][tableCount] = contingencyTable()
+
+                    tempTables[lengthIter][tableCount] = createBaseTable(tempTables[lengthIter][tableCount], uniqueSubset)
+
+                    print("TABLE for uniqueSubset:", uniqueSubset)
+
+                    calculateMeasures(tempTables[lengthIter][tableCount])
+
+                    print("| ", tempTables[lengthIter][tableCount].data11, " | ", tempTables[lengthIter][tableCount].data10, " | ", tempTables[lengthIter][tableCount].data1X)
+                    print("| ", tempTables[lengthIter][tableCount].data01, " | ", tempTables[lengthIter][tableCount].data00, " | ", tempTables[lengthIter][tableCount].data0X)
+                    print("  ", tempTables[lengthIter][tableCount].dataX1, "   ", tempTables[lengthIter][tableCount].dataX0, "   ", tempTables[lengthIter][tableCount].dataXX)
+                    print("MEASURES supp:", tempTables[lengthIter][tableCount].supp, " conf: ", tempTables[lengthIter][tableCount].conf, " IS: ", tempTables[lengthIter][tableCount].IS)
+                    print(" ")
+
+                    #measures = (tempTables[lengthIter][tableCount].supp, tempTables[lengthIter][tableCount].conf, tempTables[lengthIter][tableCount].IS)
+                    #print("MEASURES : : ", measures)
+
+                    tableCount += 1
+
+                maxConf = tempTables[lengthIter][0].conf
+                for uniqueTable in tempTables[lengthIter]:
+                    if uniqueTable.conf > maxConf:
+                        maxConf = uniqueTable.conf
+                        finalTable = uniqueTable
+
+                print("maxConf ", maxConf, " finalTable: ", finalTable)
+
+                measures = (finalTable.supp, finalTable.conf, finalTable.IS)
+                print("finalTable MEASURES : ", measures)
 
         #print("joinSet: ", currentLargeItemSet)
         candidateItemSet = getItemSetWithMinSup(currentLargeItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
