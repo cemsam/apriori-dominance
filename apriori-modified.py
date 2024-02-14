@@ -87,6 +87,12 @@ def calculateMeasures(table):
         table.dataX1 = 1
     if table.dataX0 == 0:
         table.dataX0 = 1
+    
+    if table.dataX1 - table.dataX0 == 0:
+        table.dataX1 += 1
+    if table.data1X - table.data0X == 0:
+        table.data1X += 1
+
 
     table.supp = round(table.data11 / table.dataXX, 3)
     table.conf = round(table.data11 / table.data1X, 3)
@@ -135,13 +141,66 @@ def createBaseTable(table, subset):
     
     return table
 
-def getReferenceRule(finalTables):
-    candidateReferenceList = list(finalTables[0].measures)
-    for r in finalTables:
+# Dominance algorithms
+def getReferenceRule(s):
+    candidateReferenceList = list(s[0].measures)
+    for r in s:
         for i in range(len(r.measures)):
             candidateReferenceList[i] = max(r.measures[i], candidateReferenceList[i])
         
     return candidateReferenceList
+
+def degSim(s,r2):
+    return sum([abs(x-y) for x,y in zip(s, r2.measures)])/len(s)
+
+def getrMinDegSim(s, reference):
+    bestDegSim = degSim(reference, s[0])
+    rStar = s[0]
+    for r in s:
+        auxDegSim = degSim(reference, r)
+        if(auxDegSim < bestDegSim): #lower is better
+            bestDegSim = auxDegSim
+            rStar = r
+    return rStar
+
+#Dominates = True of all measures of self are greather or equal than measures in r2
+def dominates(s, r2):
+    for x,y in zip(r2.measures, s.measures):
+        if (x>y): return False
+    return True
+
+#Strictly Dominates = Dominates and there is at least measure in self that is better than in r2
+def strictlyDominates(s, r2):
+    if(dominates(s, r2) and strictlyDominatesOneMeasure(s, r2)):
+        return True
+    return False
+
+#Strictly in one measure
+def strictlyDominatesOneMeasure(s, r2):
+    for x,y in zip(s.measures, r2.measures):
+        if (x>y): return True
+    return False
+    
+def getUndominatedRules(s, referenceRule):
+    selfC = s.copy() #Candidate undominated rules
+    selfE = s.copy() #Current undominated rules
+    sky = [] #Final undominated rules
+
+    while(selfC): #While there are candidates
+        rStar = getrMinDegSim(selfC, referenceRule) #r* <- r of C having min(DegSim(r,reference))
+        selfC.remove(rStar) #C <- C\{r*}
+        Sr = []
+        sky.append(rStar)
+    
+        for e in selfE:
+            if(strictlyDominates(rStar, e)):
+                selfC.remove(e)
+            elif(strictlyDominatesOneMeasure(e, rStar)):
+                Sr.append(e)
+
+        selfE = Sr #New current candidates are only undominated rules that dominates rStar in at least one measure
+
+    return sky
 
 def generateLargeItemSets(candidateItemSet):
     currentLargeItemSet = candidateItemSet
@@ -149,7 +208,7 @@ def generateLargeItemSets(candidateItemSet):
     while (currentLargeItemSet != set([])):
         largeItemSets[lengthIter - 1] = currentLargeItemSet
         currentLargeItemSet = joinSet(currentLargeItemSet, lengthIter)
-        print("currentLargeItemSet: ", currentLargeItemSet)
+        print("currentLargeItemSet after joinSet: ", currentLargeItemSet)
         if currentLargeItemSet == set([]):
             break
         
@@ -170,15 +229,15 @@ def generateLargeItemSets(candidateItemSet):
 
                     tempTables[lengthIter][tableCount] = createBaseTable(tempTables[lengthIter][tableCount], uniqueSubset)
 
-                    print("TABLE for uniqueSubset:", uniqueSubset)
+                    print("   TABLE for uniqueSubset:", uniqueSubset)
 
                     tempTables[lengthIter][tableCount].subset = uniqueSubset
                     calculateMeasures(tempTables[lengthIter][tableCount])
 
-                    print("| ", tempTables[lengthIter][tableCount].data11, " | ", tempTables[lengthIter][tableCount].data10, " | ", tempTables[lengthIter][tableCount].data1X)
-                    print("| ", tempTables[lengthIter][tableCount].data01, " | ", tempTables[lengthIter][tableCount].data00, " | ", tempTables[lengthIter][tableCount].data0X)
-                    print("  ", tempTables[lengthIter][tableCount].dataX1, "   ", tempTables[lengthIter][tableCount].dataX0, "   ", tempTables[lengthIter][tableCount].dataXX)
-                    print("MEASURES supp:", tempTables[lengthIter][tableCount].supp, " conf: ", tempTables[lengthIter][tableCount].conf, " IS: ", tempTables[lengthIter][tableCount].IS)
+                    print("   | ", tempTables[lengthIter][tableCount].data11, " | ", tempTables[lengthIter][tableCount].data10, " | ", tempTables[lengthIter][tableCount].data1X)
+                    print("   | ", tempTables[lengthIter][tableCount].data01, " | ", tempTables[lengthIter][tableCount].data00, " | ", tempTables[lengthIter][tableCount].data0X)
+                    print("     ", tempTables[lengthIter][tableCount].dataX1, "   ", tempTables[lengthIter][tableCount].dataX0, "   ", tempTables[lengthIter][tableCount].dataXX)
+                    print("   MEASURES supp:", tempTables[lengthIter][tableCount].supp, " conf: ", tempTables[lengthIter][tableCount].conf, " IS: ", tempTables[lengthIter][tableCount].IS)
                     print(" ")
 
                     #measures = (tempTables[lengthIter][tableCount].supp, tempTables[lengthIter][tableCount].conf, tempTables[lengthIter][tableCount].IS)
@@ -194,27 +253,26 @@ def generateLargeItemSets(candidateItemSet):
                         finalTable = uniqueTable
                 finalTables.append(finalTable)
 
-            print("finalTables", finalTables)
+            for table in finalTables:
+                print("finalTables with MAX conf", table.subset, table.measures)
 
             referenceRule = getReferenceRule(finalTables)
-            print("REF ", referenceRule)
+
+            undominatedRules = getUndominatedRules(finalTables, referenceRule)
+            currentLargeItemSet.clear()
+            for rule in undominatedRules:
+                # return to normal structure from subset structure
+                rule.subset = [val for element in rule.subset for val in element]
+                print("DOMINANCE result ", rule.subset, rule.measures)
                 
-            #degSim
+                currentLargeItemSet.add(frozenset(rule.subset))
 
-            #getrMinDegSim
+            print("=======================================================================================")
 
-            #strictlyDominatesOneMeasure
-   
-            #dominates
+        else:
+            candidateItemSet = getItemSetWithMinSup(currentLargeItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
+            currentLargeItemSet = candidateItemSet
 
-            #strictlyDominates
-
-            #getUndominatedRules
-            
-        #print("joinSet: ", currentLargeItemSet)
-        candidateItemSet = getItemSetWithMinSup(currentLargeItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
-        #print("For length: ", lengthIter, " candidateOneItemSet: ", candidateOneItemSet)
-        currentLargeItemSet = candidateItemSet
         lengthIter += 1
 
     finalLargeItemSet = []
