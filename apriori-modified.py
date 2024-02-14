@@ -202,6 +202,11 @@ def getUndominatedRules(s, referenceRule):
 
     return sky
 
+def executeDominance(finalTables):
+    referenceRule = getReferenceRule(finalTables)
+    undominatedRules = getUndominatedRules(finalTables, referenceRule)
+    return undominatedRules
+
 def generateLargeItemSets(candidateItemSet):
     currentLargeItemSet = candidateItemSet
     lengthIter = 2 # start from 2-itemsets
@@ -240,9 +245,6 @@ def generateLargeItemSets(candidateItemSet):
                     print("   MEASURES supp:", tempTables[lengthIter][tableCount].supp, " conf: ", tempTables[lengthIter][tableCount].conf, " IS: ", tempTables[lengthIter][tableCount].IS)
                     print(" ")
 
-                    #measures = (tempTables[lengthIter][tableCount].supp, tempTables[lengthIter][tableCount].conf, tempTables[lengthIter][tableCount].IS)
-                    #print("MEASURES : : ", measures)
-
                     tableCount += 1
 
                 # create and assign finalTables for candidate k-itemsets
@@ -256,15 +258,14 @@ def generateLargeItemSets(candidateItemSet):
             for table in finalTables:
                 print("finalTables with MAX conf", table.subset, table.measures)
 
-            referenceRule = getReferenceRule(finalTables)
+            # DOMINANCE
+            undominatedRules = executeDominance(finalTables)
 
-            undominatedRules = getUndominatedRules(finalTables, referenceRule)
             currentLargeItemSet.clear()
             for rule in undominatedRules:
                 # return to normal structure from subset structure
                 rule.subset = [val for element in rule.subset for val in element]
                 print("DOMINANCE result ", rule.subset, rule.measures)
-                
                 currentLargeItemSet.add(frozenset(rule.subset))
 
             print("=======================================================================================")
