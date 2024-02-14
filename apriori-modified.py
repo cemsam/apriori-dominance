@@ -9,6 +9,7 @@ MINSUP = 0.008
 MINCONF = 0.1
 
 class contingencyTable:
+    subset = 0
     data11 = 0
     data10 = 0
     data01 = 0
@@ -18,6 +19,7 @@ class contingencyTable:
     dataX1 = 0
     data0X = 0
     dataXX = 0
+    measures = 0
     supp = 0
     conf = 0
     CC = 0
@@ -90,6 +92,8 @@ def calculateMeasures(table):
     table.conf = round(table.data11 / table.data1X, 3)
     #table.CC = round(math.sqrt(table.data0X * table.data1X * table.dataX1 * table.dataX0) if (table.data11 * table.data00) - (table.data01 * table.data10) / math.sqrt(table.data0X * table.data1X * table.dataX1 * table.dataX0) else 0, 3)
     table.IS = round(math.sqrt((table.data11 * table.data11) / abs((table.dataX1 - table.dataX0) * (table.data1X - table.data0X))), 3)
+
+    table.measures = [table.supp, table.conf, table.IS]
     return table
 
 def generateUniqueSubsetsTuple(frozen):
@@ -131,6 +135,14 @@ def createBaseTable(table, subset):
     
     return table
 
+def getReferenceRule(finalTables):
+    candidateReferenceList = list(finalTables[0].measures)
+    for r in finalTables:
+        for i in range(len(r.measures)):
+            candidateReferenceList[i] = max(r.measures[i], candidateReferenceList[i])
+        
+    return candidateReferenceList
+
 def generateLargeItemSets(candidateItemSet):
     currentLargeItemSet = candidateItemSet
     lengthIter = 2 # start from 2-itemsets
@@ -143,7 +155,8 @@ def generateLargeItemSets(candidateItemSet):
         
         # dont create tables for less and equal than 2-itemsets
         if lengthIter > 2:
-            tempTables = {}
+            finalTables = [] # finalTables to store for each lengthIter and pass to Dominance
+            tempTables = {} # tempTables as dict to hold list of tables for each uniqueSubset, lengthIter as key
             for itemSet in currentLargeItemSet:
                 print("itemSet: ", itemSet)
                 uniqueSubsets = generateUniqueSubsetsTuple(itemSet)
@@ -159,6 +172,7 @@ def generateLargeItemSets(candidateItemSet):
 
                     print("TABLE for uniqueSubset:", uniqueSubset)
 
+                    tempTables[lengthIter][tableCount].subset = uniqueSubset
                     calculateMeasures(tempTables[lengthIter][tableCount])
 
                     print("| ", tempTables[lengthIter][tableCount].data11, " | ", tempTables[lengthIter][tableCount].data10, " | ", tempTables[lengthIter][tableCount].data1X)
@@ -172,17 +186,31 @@ def generateLargeItemSets(candidateItemSet):
 
                     tableCount += 1
 
-                maxConf = tempTables[lengthIter][0].conf
+                # create and assign finalTables for candidate k-itemsets
+                maxConf = 0
                 for uniqueTable in tempTables[lengthIter]:
                     if uniqueTable.conf > maxConf:
                         maxConf = uniqueTable.conf
                         finalTable = uniqueTable
+                finalTables.append(finalTable)
 
-                print("maxConf ", maxConf, " finalTable: ", finalTable)
+            print("finalTables", finalTables)
 
-                measures = (finalTable.supp, finalTable.conf, finalTable.IS)
-                print("finalTable MEASURES : ", measures)
+            referenceRule = getReferenceRule(finalTables)
+            print("REF ", referenceRule)
+                
+            #degSim
 
+            #getrMinDegSim
+
+            #strictlyDominatesOneMeasure
+   
+            #dominates
+
+            #strictlyDominates
+
+            #getUndominatedRules
+            
         #print("joinSet: ", currentLargeItemSet)
         candidateItemSet = getItemSetWithMinSup(currentLargeItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
         #print("For length: ", lengthIter, " candidateOneItemSet: ", candidateOneItemSet)
