@@ -135,13 +135,66 @@ def createBaseTable(table, subset):
     
     return table
 
-def getReferenceRule(finalTables):
-    candidateReferenceList = list(finalTables[0].measures)
-    for r in finalTables:
+# Dominance algorithms
+def getReferenceRule(s):
+    candidateReferenceList = list(s[0].measures)
+    for r in s:
         for i in range(len(r.measures)):
             candidateReferenceList[i] = max(r.measures[i], candidateReferenceList[i])
         
     return candidateReferenceList
+
+def degSim(s,r2):
+    return sum([abs(x-y) for x,y in zip(s, r2.measures)])/len(s)
+
+def getrMinDegSim(s, reference):
+    bestDegSim = degSim(reference, s[0])
+    rStar = s[0]
+    for r in s:
+        auxDegSim = degSim(reference, r)
+        if(auxDegSim < bestDegSim): #lower is better
+            bestDegSim = auxDegSim
+            rStar = r
+    return rStar
+
+#Dominates = True of all measures of self are greather or equal than measures in r2
+def dominates(s, r2):
+    for x,y in zip(r2.measures, s.measures):
+        if (x>y): return False
+    return True
+
+#Strictly Dominates = Dominates and there is at least measure in self that is better than in r2
+def strictlyDominates(s, r2):
+    if(dominates(s, r2) and strictlyDominatesOneMeasure(s, r2)):
+        return True
+    return False
+
+#Strictly in one measure
+def strictlyDominatesOneMeasure(s, r2):
+    for x,y in zip(s.measures, r2.measures):
+        if (x>y): return True
+    return False
+    
+def getUndominatedRules(s, referenceRule):
+    selfC = s.copy() #Candidate undominated rules
+    selfE = s.copy() #Current undominated rules
+    sky = [] #Final undominated rules
+
+    while(selfC): #While there are candidates
+        rStar = getrMinDegSim(selfC, referenceRule) #r* <- r of C having min(DegSim(r,reference))
+        selfC.remove(rStar) #C <- C\{r*}
+        Sr = []
+        sky.append(rStar)
+    
+        for e in selfE:
+            if(strictlyDominates(rStar, e)):
+                selfC.remove(e)
+            elif(strictlyDominatesOneMeasure(e, rStar)):
+                Sr.append(e)
+
+        selfE = Sr #New current candidates are only undominated rules that dominates rStar in at least one measure
+
+    return sky
 
 def generateLargeItemSets(candidateItemSet):
     currentLargeItemSet = candidateItemSet
@@ -194,14 +247,61 @@ def generateLargeItemSets(candidateItemSet):
                         finalTable = uniqueTable
                 finalTables.append(finalTable)
 
-            print("finalTables", finalTables)
+
+
+            # ONLY FOR TEST HARD CODE RULES
+            finalTables.clear()
+            rule1 = contingencyTable()
+            rule1.subset = 1
+            rule1.measures = [0.20, 0.67, 0.02]
+            finalTables.append(rule1)
+
+            rule2 = contingencyTable()
+            rule2.subset = 2
+            rule2.measures = [0.10, 0.50, 0.00]
+            finalTables.append(rule2)
+
+            rule3 = contingencyTable()
+            rule3.subset = 3
+            rule3.measures = [0.10, 0.50, 0.02]
+            finalTables.append(rule3)
+
+            rule4 = contingencyTable()
+            rule4.subset = 4
+            rule4.measures = [0.20, 0.40, 0.10]
+            finalTables.append(rule4)
+
+            rule5 = contingencyTable()
+            rule5.subset = 5
+            rule5.measures = [0.20, 0.33, 0.02]
+            finalTables.append(rule5)
+
+            rule6 = contingencyTable()
+            rule6.subset = 6
+            rule6.measures = [0.20, 0.33, 0.10]
+            finalTables.append(rule6)
+
+            rule7 = contingencyTable()
+            rule7.subset = 7
+            rule7.measures = [0.10, 0.20, 0.01]
+            finalTables.append(rule7)
+
+            rule8 = contingencyTable()
+            rule8.subset = 8
+            rule8.measures = [0.10, 0.17, 0.02]
+            finalTables.append(rule8)
+
+            for table in finalTables:
+                print("finalTables ", table.subset, table.measures)
 
             referenceRule = getReferenceRule(finalTables)
-            print("REF ", referenceRule)
+            print("referenceRule ", referenceRule)
                 
             #degSim
 
             #getrMinDegSim
+            rMinDegSim = getrMinDegSim(finalTables, referenceRule)
+            print("rMinDegSim ", rMinDegSim)
 
             #strictlyDominatesOneMeasure
    
@@ -210,6 +310,9 @@ def generateLargeItemSets(candidateItemSet):
             #strictlyDominates
 
             #getUndominatedRules
+            outp = getUndominatedRules(finalTables, referenceRule)
+            for out in outp:
+                print("OUTP ", out.subset, out.measures)
             
         #print("joinSet: ", currentLargeItemSet)
         candidateItemSet = getItemSetWithMinSup(currentLargeItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
