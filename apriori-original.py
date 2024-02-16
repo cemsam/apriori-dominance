@@ -4,8 +4,8 @@ import csv
 from collections import defaultdict
 from itertools import chain, combinations
 
-MINSUP = 0.4
-MINCONF = 0.1
+MINSUP = 0.01
+MINCONF = 0.01
 
 def readFromInputFile(fileName):
     # extract rows from csv file
@@ -36,7 +36,6 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
         if support >= MINSUP:
             localCandidateItemSet.add(item)
 
-    print("frequent ", lengthIter, "-itemSet: ", localCandidateItemSet)
     return localCandidateItemSet
 
 def joinSet(itemSet, itemSetLength):
@@ -61,19 +60,23 @@ def extractItemSetAndTransactionList(rowRecords):
     #print("transactionList: ", transactionList)
     return itemSet, transactionList
 
-def generateLargeItemSets(candidateOneItemSet):
-    currentLargeItemSet = candidateOneItemSet
+def generateLargeItemSets(candidateItemSet):
+    currentLargeItemSet = candidateItemSet
     lengthIter = 2
     while (currentLargeItemSet != set([])):
         largeItemSets[lengthIter - 1] = currentLargeItemSet
-        currentLargeItemSet = joinSet(currentLargeItemSet, lengthIter)
-        if currentLargeItemSet == set([]):
+        newCandidateItemSet = joinSet(currentLargeItemSet, lengthIter)
+        if newCandidateItemSet == set([]):
+            print("============================== Cannot generate", lengthIter, "- itemSets ==============================")
             break
 
-        #print("joinSet: ", currentLargeItemSet)
-        candidateOneItemSet = getItemSetWithMinSup(currentLargeItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
-        #print("For length: ", lengthIter, " candidateOneItemSet: ", candidateOneItemSet)
-        currentLargeItemSet = candidateOneItemSet
+        #print("joinSet: ", newCandidateItemSet)
+        currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
+        for currentLargeItem in currentLargeItemSet:
+            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem)
+        #print("For length: ", lengthIter, " candidateItemSet: ", candidateeItemSet)
+        print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
+        print(" ")
         lengthIter += 1
 
     finalLargeItemSet = []
@@ -103,6 +106,7 @@ def printAll(finalLargeItemSets, associationRules):
     for rule, confidence in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
         print("Rule: %s => %s  %.2f" % (str(pre), str(post), confidence))
+    print("============================= Rule count", len(associationRules), "=============================")
 
 if __name__ == "__main__":
     rowRecords = readFromInputFile("SMALL-DATASET.csv")
