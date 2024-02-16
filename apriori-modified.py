@@ -53,7 +53,6 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
         if support >= MINSUP:
             localCandidateItemSet.add(item)
 
-    print("frequent ", lengthIter, "-itemSet: ", localCandidateItemSet)
     return localCandidateItemSet
 
 def joinSet(itemSet, itemSetLength):
@@ -93,6 +92,8 @@ def calculateMeasures(table):
     if table.data1X - table.data0X == 0:
         table.data1X += 1
 
+
+    # check lift measure and possibly use 4 measures
 
     table.supp = round(table.data11 / table.dataXX, 3)
     table.conf = round(table.data11 / table.data1X, 3)
@@ -212,16 +213,16 @@ def generateLargeItemSets(candidateItemSet):
     lengthIter = 2 # start from 2-itemsets
     while (currentLargeItemSet != set([])):
         largeItemSets[lengthIter - 1] = currentLargeItemSet
-        currentLargeItemSet = joinSet(currentLargeItemSet, lengthIter)
-        print("currentLargeItemSet after joinSet: ", currentLargeItemSet)
-        if currentLargeItemSet == set([]):
+        newCandidateItemSet = joinSet(currentLargeItemSet, lengthIter)
+        if newCandidateItemSet == set([]):
+            print("============================== Cannot generate", lengthIter, "- itemSets ==============================")
             break
         
         # dont create tables for less and equal than 2-itemsets
-        if lengthIter > 2:
+        if lengthIter > 3:
             finalTables = [] # finalTables to store for each lengthIter and pass to Dominance
             tempTables = {} # tempTables as dict to hold list of tables for each uniqueSubset, lengthIter as key
-            for itemSet in currentLargeItemSet:
+            for itemSet in newCandidateItemSet:
                 print("itemSet: ", itemSet)
                 uniqueSubsets = generateUniqueSubsetsTuple(itemSet)
 
@@ -251,29 +252,38 @@ def generateLargeItemSets(candidateItemSet):
                 maxConf = 0
                 for uniqueTable in tempTables[lengthIter]:
                     if uniqueTable.conf > maxConf:
-                        maxConf = uniqueTable.conf
+                        maxConf = uniqueTable.conf # get maxConf in all uniqueTable of tempTables[lengthIter]
+
+                for uniqueTable in tempTables[lengthIter]:
+                    if uniqueTable.conf >= maxConf:
                         finalTable = uniqueTable
-                finalTables.append(finalTable)
+                        if (finalTable.conf != 0):
+                            finalTables.append(finalTable)
+                            break
 
             for table in finalTables:
                 print("finalTables with MAX conf", table.subset, table.measures)
 
             # DOMINANCE
-            undominatedRules = executeDominance(finalTables)
+            undominatedItemsets = executeDominance(finalTables)
 
             currentLargeItemSet.clear()
-            for rule in undominatedRules:
+            print("=======================================================================================")
+            for itemSet in undominatedItemsets:
                 # return to normal structure from subset structure
-                rule.subset = [val for element in rule.subset for val in element]
-                print("DOMINANCE result ", rule.subset, rule.measures)
-                currentLargeItemSet.add(frozenset(rule.subset))
+                itemSet.subset = [val for element in itemSet.subset for val in element]
+                print("DOMINANCE result ", itemSet.subset, itemSet.measures)
+                currentLargeItemSet.add(frozenset(itemSet.subset))
 
             print("=======================================================================================")
 
         else:
-            candidateItemSet = getItemSetWithMinSup(currentLargeItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
-            currentLargeItemSet = candidateItemSet
-
+            currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
+            
+        for currentLargeItem in currentLargeItemSet:
+            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem)
+        print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
+        print(" ")
         lengthIter += 1
 
     finalLargeItemSet = []
@@ -303,9 +313,10 @@ def printAll(finalLargeItemSets, associationRules):
     for rule, confidence in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
         print("Rule: %s => %s  %.2f" % (str(pre), str(post), confidence))
+    print("============================= Rule count", len(associationRules), "=============================")
 
 if __name__ == "__main__":
-    rowRecords = readFromInputFile("SMALL-DATASET.csv")
+    rowRecords = readFromInputFile("basket2.csv")
     itemSet, transactionList = extractItemSetAndTransactionList(rowRecords)
     
     frequencyOfItemSets = defaultdict(int)
