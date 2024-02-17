@@ -1,11 +1,13 @@
 import csv
+import time
 #import pandas as pd
 #from mlxtend.frequent_patterns  import association_rules
 from collections import defaultdict
 from itertools import chain, combinations
 
+
 MINSUP = 0.01
-MINCONF = 0.01
+MINCONF = 0.1
 
 def readFromInputFile(fileName):
     # extract rows from csv file
@@ -100,8 +102,8 @@ def generateAssociationRules():
     return associationRules
 
 def printAll(finalLargeItemSets, associationRules):
-    for item, support in sorted(finalLargeItemSets, key=lambda x: x[1]):
-        print("item: %s , %.2f" % (str(item), support))
+    #for item, support in sorted(finalLargeItemSets, key=lambda x: x[1]):
+    #    print("item: %s , %.2f" % (str(item), support))
 
     for rule, confidence in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
@@ -109,7 +111,8 @@ def printAll(finalLargeItemSets, associationRules):
     print("============================= Rule count", len(associationRules), "=============================")
 
 if __name__ == "__main__":
-    rowRecords = readFromInputFile("SMALL-DATASET.csv")
+    startTime = time.time()
+    rowRecords = readFromInputFile("basket2.csv")
     itemSet, transactionList = extractItemSetAndTransactionList(rowRecords)
     
     frequencyOfItemSets = defaultdict(int)
@@ -125,3 +128,6 @@ if __name__ == "__main__":
 
     # print finalLargeItemSets and associationRules
     printAll(finalLargeItemSets, associationRules)
+    
+    endTime = time.time()
+    print("============================= Total execution time:", endTime - startTime, "seconds =============================")
