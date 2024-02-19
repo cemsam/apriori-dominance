@@ -7,7 +7,7 @@ from itertools import chain, combinations
 
 
 MINSUP = 0.01
-MINCONF = 0.1
+MINCONF = 0.2
 
 def readFromInputFile(fileName):
     # extract rows from csv file

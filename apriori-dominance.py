@@ -2,12 +2,12 @@ import csv
 import time
 import math
 #import pandas as pd
-#from mlxtend.frequent_patterns  import association_rules
+#from mlxtend.frequent_patterns import association_rules
 from collections import defaultdict
 from itertools import chain, combinations
 
 MINSUP = 0.01
-MINCONF = 0.1
+MINCONF = 0.2
 
 class itemSetAndMeasures:
     itemset = 0
@@ -132,44 +132,56 @@ def executeDominance(finalTables):
     return undominatedRules
 
 def getSupport(itemSet):
-    localSet = defaultdict(int)
+    sum = 0
     for transaction in transactionList:
         if itemSet.issubset(transaction):
-            localSet[itemSet] += 1
+            sum += 1
 
-    return round(localSet[itemSet] / len(transactionList), 4)
+    return round(sum / len(transactionList), 3)
 
 def getConfidence(itemSet):
+    itemSetSupport = 0
+    remainingSupport = 0
     subsets = map(frozenset, [x for x in getSubsets(itemSet)])
+    subsetSize = 0
     for element in subsets:
+        subsetSize += 1
         remaining = itemSet.difference(element)
         if len(remaining) > 0:
-            itemSetSupport = getSupport(itemSet)
-            remainingSupport = getSupport(remaining)
-            if remainingSupport == 0:
-                return 0
+            itemSetSupport += getSupport(itemSet)
+            remainingSupport += getSupport(remaining)
+    
+    itemSetSupport = itemSetSupport / subsetSize
+    remainingSupport = remainingSupport / subsetSize
+    if remainingSupport == 0:
+        return 0
         
     return round(itemSetSupport / remainingSupport, 4)
 
-def getLift(itemSet):
+def getLift(itemSet, supportItemSet):
+    elementSupport = 0
+    remainingSupport = 0
+    subsetSize = 0
     subsets = map(frozenset, [x for x in getSubsets(itemSet)])
     for element in subsets:
+        subsetSize += 1
         remaining = itemSet.difference(element)
         if len(remaining) > 0:
-            itemSetSupport = getSupport(itemSet)
-            elementSupport = getSupport(element)
-            remainingSupport = getSupport(remaining)
-            if elementSupport * remainingSupport == 0:
-                return 0
-        
-    return round(itemSetSupport / (elementSupport * remainingSupport), 4)
+            elementSupport += getSupport(element)
+            remainingSupport += getSupport(remaining)
+
+    elementSupport = elementSupport / subsetSize
+    remainingSupport = remainingSupport / subsetSize
+    if elementSupport * remainingSupport == 0:
+        return 0
+    return round(supportItemSet / (elementSupport * remainingSupport), 4)
 
 def calculateMeasures(itemSetMeasures):
     support = getSupport(itemSetMeasures.itemset)
     confidence = getConfidence(itemSetMeasures.itemset)
-    lift = getLift(itemSetMeasures.itemset)
+    lift = getLift(itemSetMeasures.itemset, support)
     itemSetMeasures.measures = [support, confidence, lift]
-    print("MEASURES", itemSetMeasures.itemset, itemSetMeasures.measures)
+    #print("MEASURES", itemSetMeasures.itemset, itemSetMeasures.measures)
 
 
 def generateLargeItemSets(candidateItemSet):
@@ -183,7 +195,7 @@ def generateLargeItemSets(candidateItemSet):
             break
 
         finalItemSets = []
-        if lengthIter > 3:
+        if lengthIter > 2:
             for itemSet in newCandidateItemSet:
                 itemSetMeasures = itemSetAndMeasures()
                 itemSetMeasures.itemset = itemSet
