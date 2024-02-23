@@ -6,7 +6,7 @@ from collections import defaultdict
 from itertools import chain, combinations
 
 
-MINSUP = 0.01
+MINSUP = 0.005
 MINCONF = 0.2
 
 def readFromInputFile(fileName):
@@ -55,8 +55,7 @@ def extractItemSetAndTransactionList(rowRecords):
         transaction = frozenset(rowRecord)
         transactionList.append(transaction)
         for item in transaction:
-            if not ("T" in item):
-                itemSet.add(frozenset([item]))
+            itemSet.add(frozenset([item]))
 
     #print("itemset: ", itemSet)
     #print("transactionList: ", transactionList)

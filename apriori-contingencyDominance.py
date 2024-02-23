@@ -6,8 +6,8 @@ import math
 from collections import defaultdict
 from itertools import chain, combinations
 
-MINSUP = 0.01
-MINCONF = 0.1
+MINSUP = 0.015
+MINCONF = 0.2
 
 class contingencyTable:
     subset = 0
@@ -71,7 +71,6 @@ def extractItemSetAndTransactionList(rowRecords):
         transaction = frozenset(rowRecord)
         transactionList.append(transaction)
         for item in transaction:
-            #if not ("T" in item):
             itemSet.add(frozenset([item]))
 
     #print("itemset: ", itemSet)

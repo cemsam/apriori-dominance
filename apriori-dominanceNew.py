@@ -130,14 +130,6 @@ def executeDominance(finalTables):
     undominatedRules = getUndominatedRules(finalTables, referenceRule)
     return undominatedRules
 
-def getSupport(itemSet):
-    sum = 0
-    for transaction in transactionList:
-        if itemSet.issubset(transaction):
-            sum += 1
-
-    return round(sum / len(transactionList), 4)
-
 def getConfidence(itemSet):
     itemSetSupport = 0
     remainingSupport = 0
@@ -147,8 +139,8 @@ def getConfidence(itemSet):
         subsetSize += 1
         remaining = itemSet.difference(element)
         if len(remaining) > 0:
-            itemSetSupport += getSupport(itemSet)
-            remainingSupport += getSupport(remaining)
+            itemSetSupport += float(frequencyOfItemSets[itemSet]) / len(transactionList)
+            remainingSupport += float(frequencyOfItemSets[remaining]) / len(transactionList)
     
     itemSetSupport = itemSetSupport / subsetSize
     remainingSupport = remainingSupport / subsetSize
@@ -166,8 +158,8 @@ def getLift(itemSet, supportItemSet):
         subsetSize += 1
         remaining = itemSet.difference(element)
         if len(remaining) > 0:
-            elementSupport += getSupport(element)
-            remainingSupport += getSupport(remaining)
+            elementSupport += float(frequencyOfItemSets[element]) / len(transactionList)
+            remainingSupport += float(frequencyOfItemSets[remaining]) / len(transactionList)
 
     elementSupport = elementSupport / subsetSize
     remainingSupport = remainingSupport / subsetSize
@@ -176,7 +168,7 @@ def getLift(itemSet, supportItemSet):
     return round(supportItemSet / (elementSupport * remainingSupport), 4)
 
 def calculateMeasures(itemSetMeasures):
-    support = getSupport(itemSetMeasures.itemset)
+    support = round(float(frequencyOfItemSets[itemSetMeasures.itemset]) / len(transactionList), 4)
     confidence = getConfidence(itemSetMeasures.itemset)
     lift = getLift(itemSetMeasures.itemset, support)
     itemSetMeasures.measures = [support, confidence, lift]
@@ -190,12 +182,16 @@ def generateLargeItemSets(candidateItemSet):
         largeItemSets[lengthIter - 1] = currentLargeItemSet
         newCandidateItemSet = joinSet(currentLargeItemSet, lengthIter)
         if newCandidateItemSet == set([]):
-            print("============================== Cannot generate", lengthIter, "- itemSets ==============================")
+            print("============================== Cannot generate any", lengthIter, "- itemSets after union ==============================")
             break
-
-        finalItemSets = []
+        
         if lengthIter > 3:
-            for itemSet in newCandidateItemSet:
+            currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
+            if currentLargeItemSet == set([]):
+                print("=========================== There are no", lengthIter, "- itemSets that satisfy MINSUP ===========================")
+                break
+            finalItemSets = []
+            for itemSet in currentLargeItemSet:
                 itemSetMeasures = itemSetAndMeasures()
                 itemSetMeasures.itemset = itemSet
                 calculateMeasures(itemSetMeasures)
@@ -207,10 +203,10 @@ def generateLargeItemSets(candidateItemSet):
             for itemSet in undominatedItemsets:
                 print("DOMINANCE result ", itemSet.itemset, itemSet.measures)
                 currentLargeItemSet.add(itemSet.itemset)
-
+            
         else:
             currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
-            
+
         for currentLargeItem in currentLargeItemSet:
             print("Frequent", lengthIter, "- itemSet: ", currentLargeItem)
         print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
@@ -231,10 +227,10 @@ def generateAssociationRules():
             for element in subsets:
                 remaining = item.difference(element)
                 if len(remaining) > 0:
-                    if (float(getSupport(remaining)) / len(transactionList) == 0):
+                    if (float(frequencyOfItemSets[remaining]) / len(transactionList) == 0):
                         confidence = 0
                     else:
-                        confidence = (float(getSupport(item)) / len(transactionList)) / (float(getSupport(remaining)) / len(transactionList))
+                        confidence = (float(frequencyOfItemSets[item]) / len(transactionList)) / (float(frequencyOfItemSets[remaining]) / len(transactionList))
                     if confidence > MINCONF:
                         associationRules.append(((tuple(element), tuple(remaining)), confidence))
 
