@@ -6,8 +6,8 @@ from collections import defaultdict
 from itertools import chain, combinations
 
 
-MINSUP = 0.005
-MINCONF = 0.2
+MINSUP = 0.02
+MINCONF = 0.4
 
 def readFromInputFile(fileName):
     # extract rows from csv file
@@ -33,7 +33,7 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
 
     # if item's frequency is bigger than support add to new set
     for item, count in localSet.items():
-        support = float(count) / len(transactionList)
+        support = round(float(count) / len(transactionList), 3)
         #print("Item: ", item, " support: ", support)
         if support >= MINSUP:
             localCandidateItemSet.add(item)
@@ -68,11 +68,15 @@ def generateLargeItemSets(candidateItemSet):
         largeItemSets[lengthIter - 1] = currentLargeItemSet
         newCandidateItemSet = joinSet(currentLargeItemSet, lengthIter)
         if newCandidateItemSet == set([]):
-            print("============================== Cannot generate", lengthIter, "- itemSets ==============================")
+            print("============================== Cannot generate any", lengthIter, "- itemSets after union ==============================")
             break
 
         #print("joinSet: ", newCandidateItemSet)
         currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
+        if currentLargeItemSet == set([]):
+            print("=========================== There are no", lengthIter, "- itemSets that satisfy MINSUP ===========================")
+            break
+
         for currentLargeItem in currentLargeItemSet:
             print("Frequent", lengthIter, "- itemSet: ", currentLargeItem)
         #print("For length: ", lengthIter, " candidateItemSet: ", candidateeItemSet)
@@ -87,6 +91,7 @@ def generateLargeItemSets(candidateItemSet):
     return finalLargeItemSet
 
 def generateAssociationRules():
+    print("============================= Generating association rules =============================")
     associationRules = []
     for key, value in list(largeItemSets.items())[1:]:
         for item in value:
@@ -111,7 +116,7 @@ def printAll(finalLargeItemSets, associationRules):
 
 if __name__ == "__main__":
     startTime = time.time()
-    rowRecords = readFromInputFile("basket2.csv")
+    rowRecords = readFromInputFile("groceries2transformed.csv")
     itemSet, transactionList = extractItemSetAndTransactionList(rowRecords)
     
     frequencyOfItemSets = defaultdict(int)

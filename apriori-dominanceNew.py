@@ -6,8 +6,8 @@ import math
 from collections import defaultdict
 from itertools import chain, combinations
 
-MINSUP = 0.005
-MINCONF = 0.2
+MINSUP = 0.02
+MINCONF = 0.4
 
 class itemSetAndMeasures:
     itemset = 0
@@ -36,7 +36,7 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
 
     # if item's frequency is bigger than support add to new set
     for item, count in localSet.items():
-        support = float(count) / len(transactionList)
+        support = round(float(count) / len(transactionList), 3)
         #print("Item: ", item, " support: ", support)
         if support >= MINSUP:
             localCandidateItemSet.add(item)
@@ -147,7 +147,7 @@ def getConfidence(itemSet):
     if remainingSupport == 0:
         return 0
         
-    return round(itemSetSupport / remainingSupport, 4)
+    return round(itemSetSupport / remainingSupport, 3)
 
 def getLift(itemSet, supportItemSet):
     elementSupport = 0
@@ -165,14 +165,14 @@ def getLift(itemSet, supportItemSet):
     remainingSupport = remainingSupport / subsetSize
     if elementSupport * remainingSupport == 0:
         return 0
-    return round(supportItemSet / (elementSupport * remainingSupport), 4)
+    return round(supportItemSet / (elementSupport * remainingSupport), 3)
 
-def calculateMeasures(itemSetMeasures):
-    support = round(float(frequencyOfItemSets[itemSetMeasures.itemset]) / len(transactionList), 4)
+def calculateMeasures(itemSetMeasures, k):
+    support = round(float(frequencyOfItemSets[itemSetMeasures.itemset]) / len(transactionList), 3)
     confidence = getConfidence(itemSetMeasures.itemset)
     lift = getLift(itemSetMeasures.itemset, support)
     itemSetMeasures.measures = [support, confidence, lift]
-    print("MEASURES", itemSetMeasures.itemset, itemSetMeasures.measures)
+    print(k, "-itemSet to pass to dominance: ", itemSetMeasures.itemset, itemSetMeasures.measures)
 
 
 def generateLargeItemSets(candidateItemSet):
@@ -190,20 +190,25 @@ def generateLargeItemSets(candidateItemSet):
             if currentLargeItemSet == set([]):
                 print("=========================== There are no", lengthIter, "- itemSets that satisfy MINSUP ===========================")
                 break
+            
+            print("========================== Currently", len(currentLargeItemSet), "number of", lengthIter, "-itemSets satisfy MINSUP:", MINSUP, "==========================")
             finalItemSets = []
+            print("==================== Calculating support, confidence, lift measures for", len(currentLargeItemSet), "number of", lengthIter, "-itemSets =====================")
             for itemSet in currentLargeItemSet:
                 itemSetMeasures = itemSetAndMeasures()
                 itemSetMeasures.itemset = itemSet
-                calculateMeasures(itemSetMeasures)
+                calculateMeasures(itemSetMeasures, lengthIter)
 
                 finalItemSets.append(itemSetMeasures)
+            
+            print("============================ Running Dominance with", len(finalItemSets), "number of", lengthIter, "-itemSets ======================================")
             undominatedItemsets = executeDominance(finalItemSets)
             currentLargeItemSet = set([])
-            print("=======================================================================================")
             for itemSet in undominatedItemsets:
-                print("DOMINANCE result ", itemSet.itemset, itemSet.measures)
+                print("Dominance result: ", itemSet.itemset, itemSet.measures)
                 currentLargeItemSet.add(itemSet.itemset)
-            
+            print("================================================================================================")
+
         else:
             currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
 
@@ -220,6 +225,7 @@ def generateLargeItemSets(candidateItemSet):
     return finalLargeItemSet
 
 def generateAssociationRules():
+    print("============================= Generating association rules =============================")
     associationRules = []
     for key, value in list(largeItemSets.items())[1:]:
         for item in value:
@@ -247,7 +253,7 @@ def printAll(finalLargeItemSets, associationRules):
 
 if __name__ == "__main__":
     startTime = time.time()
-    rowRecords = readFromInputFile("basket2.csv")
+    rowRecords = readFromInputFile("groceries2transformed.csv")
     itemSet, transactionList = extractItemSetAndTransactionList(rowRecords)
     
     frequencyOfItemSets = defaultdict(int)

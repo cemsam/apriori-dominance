@@ -6,8 +6,8 @@ import math
 from collections import defaultdict
 from itertools import chain, combinations
 
-MINSUP = 0.015
-MINCONF = 0.2
+MINSUP = 0.02
+MINCONF = 0.4
 
 class contingencyTable:
     subset = 0
@@ -49,7 +49,7 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
 
     # if item's frequency is bigger than support add to new set
     for item, count in localSet.items():
-        support = float(count) / len(transactionList)
+        support = round(float(count) / len(transactionList), 3)
         #print("Item: ", item, " support: ", support)
         if support >= MINSUP:
             localCandidateItemSet.add(item)
@@ -222,8 +222,9 @@ def generateLargeItemSets(candidateItemSet):
         if lengthIter > 3:
             finalTables = [] # finalTables to store for each lengthIter and pass to Dominance
             tempTables = {} # tempTables as dict to hold list of tables for each uniqueSubset, lengthIter as key
+            print("==================== Creating contingency tables for", len(newCandidateItemSet), "number of CANDIDATE", lengthIter, "-itemSets =====================")
             for itemSet in newCandidateItemSet:
-                print("itemSet: ", itemSet)
+                print("Candidate", lengthIter, "itemSet: ", itemSet)
                 uniqueSubsets = generateUniqueSubsetsTuple(itemSet)
 
                 # loop over unique subsets of a large itemset
@@ -262,9 +263,10 @@ def generateLargeItemSets(candidateItemSet):
                             break
 
             for table in finalTables:
-                print("finalTables with MAX conf", table.subset, table.measures)
+                print("Final subset in each subsets with MAX conf is: ", table.subset, table.measures)
 
             # DOMINANCE
+            print("============================ Running Dominance with", len(finalTables), "number of", lengthIter, "-itemSets ======================================")
             undominatedItemsets = executeDominance(finalTables)
 
             currentLargeItemSet = set([])
@@ -272,9 +274,8 @@ def generateLargeItemSets(candidateItemSet):
             for itemSet in undominatedItemsets:
                 # return to normal structure from subset structure
                 itemSet.subset = [val for element in itemSet.subset for val in element]
-                print("DOMINANCE result ", itemSet.subset, itemSet.measures)
+                print("Dominance result: ", itemSet.subset, itemSet.measures)
                 currentLargeItemSet.add(frozenset(itemSet.subset))
-
             print("=======================================================================================")
 
         else:
@@ -293,6 +294,7 @@ def generateLargeItemSets(candidateItemSet):
     return finalLargeItemSet
 
 def generateAssociationRules():
+    print("============================= Generating association rules =============================")
     associationRules = []
     for key, value in list(largeItemSets.items())[1:]:
         for item in value:
