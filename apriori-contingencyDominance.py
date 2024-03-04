@@ -6,7 +6,7 @@ import math
 from collections import defaultdict
 from itertools import chain, combinations
 
-MINSUP = 0.02
+MINSUP = 0.015
 MINCONF = 0.4
 
 class contingencyTable:
@@ -282,7 +282,7 @@ def generateLargeItemSets(candidateItemSet):
             currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
             
         for currentLargeItem in currentLargeItemSet:
-            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem)
+            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 3))
         print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
         print(" ")
         lengthIter += 1
@@ -317,12 +317,12 @@ def printAll(finalLargeItemSets, associationRules):
 
     for rule, confidence in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
-        print("Rule: %s => %s  %.2f" % (str(pre), str(post), confidence))
+        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 3))
     print("============================= Rule count", len(associationRules), "=============================")
 
 if __name__ == "__main__":
     startTime = time.time()
-    rowRecords = readFromInputFile("basket2.csv")
+    rowRecords = readFromInputFile("groceries2transformed.csv")
     itemSet, transactionList = extractItemSetAndTransactionList(rowRecords)
     
     frequencyOfItemSets = defaultdict(int)

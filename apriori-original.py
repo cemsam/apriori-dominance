@@ -6,7 +6,7 @@ from collections import defaultdict
 from itertools import chain, combinations
 
 
-MINSUP = 0.02
+MINSUP = 0.015
 MINCONF = 0.4
 
 def readFromInputFile(fileName):
@@ -78,7 +78,7 @@ def generateLargeItemSets(candidateItemSet):
             break
 
         for currentLargeItem in currentLargeItemSet:
-            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem)
+            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 3))
         #print("For length: ", lengthIter, " candidateItemSet: ", candidateeItemSet)
         print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
         print(" ")
@@ -111,7 +111,7 @@ def printAll(finalLargeItemSets, associationRules):
 
     for rule, confidence in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
-        print("Rule: %s => %s  %.2f" % (str(pre), str(post), confidence))
+        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 3))
     print("============================= Rule count", len(associationRules), "=============================")
 
 if __name__ == "__main__":
