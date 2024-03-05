@@ -1,13 +1,9 @@
-import csv
 import time
+import sys
 #import pandas as pd
 #from mlxtend.frequent_patterns  import association_rules
 from collections import defaultdict
 from itertools import chain, combinations
-
-
-MINSUP = 0.015
-MINCONF = 0.4
 
 def readFromInputFile(fileName):
     # extract rows from csv file
@@ -33,7 +29,7 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
 
     # if item's frequency is bigger than support add to new set
     for item, count in localSet.items():
-        support = round(float(count) / len(transactionList), 3)
+        support = round(float(count) / len(transactionList), 4)
         #print("Item: ", item, " support: ", support)
         if support >= MINSUP:
             localCandidateItemSet.add(item)
@@ -78,7 +74,7 @@ def generateLargeItemSets(candidateItemSet):
             break
 
         for currentLargeItem in currentLargeItemSet:
-            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 3))
+            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 4))
         #print("For length: ", lengthIter, " candidateItemSet: ", candidateeItemSet)
         print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
         print(" ")
@@ -111,12 +107,23 @@ def printAll(finalLargeItemSets, associationRules):
 
     for rule, confidence in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
-        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 3))
+        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 4))
     print("============================= Rule count", len(associationRules), "=============================")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    num_args = len(sys.argv)
+    MINSUP = MINCONF = 0
+    if num_args != 4:
+        print("Expected input format: python fileName.py <dataset.csv> <MINSUP> <MINCONF>")
+        sys.exit()
+    else:
+        dataSetFile = "./datasets/" + sys.argv[1]
+        MINSUP  = float(sys.argv[2])
+        MINCONF = float(sys.argv[3])
+    
+    print("========================= Start execution for dataset:", sys.argv[1], "with MINSUP:", MINSUP, "and MINCONF", MINCONF, "=========================")
     startTime = time.time()
-    rowRecords = readFromInputFile("groceries2transformed.csv")
+    rowRecords = readFromInputFile(dataSetFile)
     itemSet, transactionList = extractItemSetAndTransactionList(rowRecords)
     
     frequencyOfItemSets = defaultdict(int)

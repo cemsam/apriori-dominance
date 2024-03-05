@@ -1,13 +1,9 @@
-import csv
 import time
-import math
+import sys
 #import pandas as pd
 #from mlxtend.frequent_patterns import association_rules
 from collections import defaultdict
 from itertools import chain, combinations
-
-MINSUP = 0.015
-MINCONF = 0.4
 
 class itemSetAndMeasures:
     itemset = 0
@@ -36,7 +32,7 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
 
     # if item's frequency is bigger than support add to new set
     for item, count in localSet.items():
-        support = round(float(count) / len(transactionList), 3)
+        support = round(float(count) / len(transactionList), 4)
         #print("Item: ", item, " support: ", support)
         if support >= MINSUP:
             localCandidateItemSet.add(item)
@@ -130,6 +126,14 @@ def executeDominance(finalTables):
     undominatedRules = getUndominatedRules(finalTables, referenceRule)
     return undominatedRules
 
+def getSupport(itemSet):
+    sum = 0
+    for transaction in transactionList:
+        if itemSet.issubset(transaction):
+            sum += 1
+
+    return round(sum / len(transactionList), 4)
+
 def getConfidence(itemSet):
     itemSetSupport = 0
     remainingSupport = 0
@@ -139,15 +143,15 @@ def getConfidence(itemSet):
         subsetSize += 1
         remaining = itemSet.difference(element)
         if len(remaining) > 0:
-            itemSetSupport += float(frequencyOfItemSets[itemSet]) / len(transactionList)
-            remainingSupport += float(frequencyOfItemSets[remaining]) / len(transactionList)
+            itemSetSupport += getSupport(itemSet)
+            remainingSupport += getSupport(remaining)
     
     itemSetSupport = itemSetSupport / subsetSize
     remainingSupport = remainingSupport / subsetSize
     if remainingSupport == 0:
         return 0
         
-    return round(itemSetSupport / remainingSupport, 3)
+    return round(itemSetSupport / remainingSupport, 4)
 
 def getLift(itemSet, supportItemSet):
     elementSupport = 0
@@ -158,21 +162,21 @@ def getLift(itemSet, supportItemSet):
         subsetSize += 1
         remaining = itemSet.difference(element)
         if len(remaining) > 0:
-            elementSupport += float(frequencyOfItemSets[element]) / len(transactionList)
-            remainingSupport += float(frequencyOfItemSets[remaining]) / len(transactionList)
+            elementSupport += getSupport(element)
+            remainingSupport += getSupport(remaining)
 
     elementSupport = elementSupport / subsetSize
     remainingSupport = remainingSupport / subsetSize
     if elementSupport * remainingSupport == 0:
         return 0
-    return round(supportItemSet / (elementSupport * remainingSupport), 3)
+    return round(supportItemSet / (elementSupport * remainingSupport), 4)
 
 def calculateMeasures(itemSetMeasures, k):
-    support = round(float(frequencyOfItemSets[itemSetMeasures.itemset]) / len(transactionList), 3)
+    support = getSupport(itemSetMeasures.itemset)
     confidence = getConfidence(itemSetMeasures.itemset)
     lift = getLift(itemSetMeasures.itemset, support)
     itemSetMeasures.measures = [support, confidence, lift]
-    print(k, "-itemSet to pass to dominance: ", itemSetMeasures.itemset, itemSetMeasures.measures)
+    print("Candidate", k, "-itemSet to pass to dominance: ", itemSetMeasures.itemset, itemSetMeasures.measures)
 
 
 def generateLargeItemSets(candidateItemSet):
@@ -184,26 +188,21 @@ def generateLargeItemSets(candidateItemSet):
         if newCandidateItemSet == set([]):
             print("============================== Cannot generate any", lengthIter, "- itemSets after union ==============================")
             break
-        
+
+        finalItemSets = []
         if lengthIter > 3:
-            currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
-            if currentLargeItemSet == set([]):
-                print("=========================== There are no", lengthIter, "- itemSets that satisfy MINSUP ===========================")
-                break
-            
-            print("========================== Currently", len(currentLargeItemSet), "number of", lengthIter, "-itemSets satisfy MINSUP:", MINSUP, "==========================")
-            finalItemSets = []
-            print("==================== Calculating support, confidence, lift measures for", len(currentLargeItemSet), "number of", lengthIter, "-itemSets =====================")
-            for itemSet in currentLargeItemSet:
+            print("==================== Calculating support, confidence, lift measures for", len(currentLargeItemSet), "number of CANDIDATE", lengthIter, "-itemSets =====================")
+            for itemSet in newCandidateItemSet:
                 itemSetMeasures = itemSetAndMeasures()
                 itemSetMeasures.itemset = itemSet
                 calculateMeasures(itemSetMeasures, lengthIter)
 
                 finalItemSets.append(itemSetMeasures)
-            
+
             print("============================ Running Dominance with", len(finalItemSets), "number of", lengthIter, "-itemSets ======================================")
             undominatedItemsets = executeDominance(finalItemSets)
             currentLargeItemSet = set([])
+            print("=======================================================================================")
             for itemSet in undominatedItemsets:
                 print("Dominance result: ", itemSet.itemset, itemSet.measures)
                 currentLargeItemSet.add(itemSet.itemset)
@@ -211,9 +210,9 @@ def generateLargeItemSets(candidateItemSet):
 
         else:
             currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
-
+            
         for currentLargeItem in currentLargeItemSet:
-            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 3))
+            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 4))
         print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
         print(" ")
         lengthIter += 1
@@ -233,10 +232,10 @@ def generateAssociationRules():
             for element in subsets:
                 remaining = item.difference(element)
                 if len(remaining) > 0:
-                    if (float(frequencyOfItemSets[remaining]) / len(transactionList) == 0):
+                    if (float(getSupport(remaining)) / len(transactionList) == 0):
                         confidence = 0
                     else:
-                        confidence = (float(frequencyOfItemSets[item]) / len(transactionList)) / (float(frequencyOfItemSets[remaining]) / len(transactionList))
+                        confidence = (float(getSupport(item)) / len(transactionList)) / (float(getSupport(remaining)) / len(transactionList))
                     if confidence > MINCONF:
                         associationRules.append(((tuple(element), tuple(remaining)), confidence))
 
@@ -248,12 +247,23 @@ def printAll(finalLargeItemSets, associationRules):
 
     for rule, confidence in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
-        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 3))
+        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 4))
     print("============================= Rule count", len(associationRules), "=============================")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
+    num_args = len(sys.argv)
+    MINSUP = MINCONF = 0
+    if num_args != 4:
+        print("Expected input format: python fileName.py <dataset.csv> <MINSUP> <MINCONF>")
+        sys.exit()
+    else:
+        dataSetFile = "./datasets/" + sys.argv[1]
+        MINSUP  = float(sys.argv[2])
+        MINCONF = float(sys.argv[3])
+    
+    print("========================= Start execution for dataset:", sys.argv[1], "with MINSUP:", MINSUP, "and MINCONF", MINCONF, "=========================")
     startTime = time.time()
-    rowRecords = readFromInputFile("groceries2transformed.csv")
+    rowRecords = readFromInputFile(dataSetFile)
     itemSet, transactionList = extractItemSetAndTransactionList(rowRecords)
     
     frequencyOfItemSets = defaultdict(int)
