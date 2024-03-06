@@ -5,9 +5,9 @@ transactionListWithId = []
 transactionListWithoutId = []
 doneList = set()
 
-file = open("francedatatransformed.csv", "w")
+file = open("transactionsTransformed.csv", "w")
 
-with open('./datasets/france_data.csv', 'r') as f:
+with open('transactionsNew.csv', 'r') as f:
     reader = csv.reader(f, delimiter=',')
     for row in reader:
         transactionIdList.append(row[0])
@@ -29,7 +29,7 @@ with open('./datasets/france_data.csv', 'r') as f:
 
 
 file.close()
-with open('francedatatransformed.csv') as reader, open('francedatatransformed.csv', 'r+') as writer:
+with open('transactionsTransformed.csv') as reader, open('transactionsTransformed.csv', 'r+') as writer:
   for line in reader:
     if line.strip():
       writer.write(line)
