@@ -34,10 +34,25 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
         if support >= MINSUP:
             localCandidateItemSet.add(item)
 
+    for itemSet in localCandidateItemSet:
+        print("Frequent", lengthIter, "- itemSet: ", itemSet, ", support: ", round(frequencyOfItemSets[itemSet] / len(transactionList), 4))
+    print("============================= Frequent", lengthIter, "- itemSet count: ", len(localCandidateItemSet), "=============================")
+    print(" ")
     return localCandidateItemSet
 
 def joinSet(itemSet, itemSetLength):
         return set([i.union(j) for i in itemSet for j in itemSet if len(i.union(j)) == itemSetLength])
+
+'''
+def joinSet(itemSet, length):
+    """Join a set with itself and returns the n-element itemsets"""
+    ret = []
+    for i in itemSet:
+        for j in itemSet:
+            if len(i.union(j)) == length:
+                ret.append(i.union(j))
+    return set(ret)
+'''
 
 def getSubsets(arr):
     # Return non empty subsets of arr
@@ -73,11 +88,11 @@ def generateLargeItemSets(candidateItemSet):
             print("=========================== There are no", lengthIter, "- itemSets that satisfy MINSUP ===========================")
             break
 
-        for currentLargeItem in currentLargeItemSet:
-            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 4))
+        #for currentLargeItem in currentLargeItemSet:
+        #    print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 4))
         #print("For length: ", lengthIter, " candidateItemSet: ", candidateeItemSet)
-        print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
-        print(" ")
+        #print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
+        #print(" ")
         lengthIter += 1
 
     finalLargeItemSet = []

@@ -191,7 +191,7 @@ def generateLargeItemSets(candidateItemSet):
 
         finalItemSets = []
         if lengthIter > 3:
-            print("==================== Calculating support, confidence, lift measures for", len(currentLargeItemSet), "number of CANDIDATE", lengthIter, "-itemSets =====================")
+            print("==================== Calculating support, confidence, lift measures for", len(newCandidateItemSet), "number of CANDIDATE", lengthIter, "-itemSets =====================")
             for itemSet in newCandidateItemSet:
                 itemSetMeasures = itemSetAndMeasures()
                 itemSetMeasures.itemset = itemSet
