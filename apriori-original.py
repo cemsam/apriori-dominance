@@ -132,7 +132,8 @@ def printAll(finalLargeItemSets, associationRules):
         print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 4), ", lift: ", round(lift, 4))
         confidenceSum += confidence
         liftSum += lift
-    print("============ Average confidence:", round(confidenceSum/len(associationRules),4), ", Average lift:", round(liftSum/len(associationRules),4),"=============")
+    if (len(associationRules) > 0):
+        print("============ Average confidence:", round(confidenceSum/len(associationRules),4), ", Average lift:", round(liftSum/len(associationRules),4),"=============")
     print("============================= Rule count", len(associationRules), "=============================")
 
 if __name__ == '__main__':
@@ -166,4 +167,4 @@ if __name__ == '__main__':
     printAll(finalLargeItemSets, associationRules)
     
     endTime = time.time()
-    print("============================= Total execution time:", endTime - startTime, "seconds =============================")
+    print("============================= Total execution time:", round(endTime - startTime,2), "seconds =============================")
