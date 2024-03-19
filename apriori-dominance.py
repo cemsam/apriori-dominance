@@ -37,6 +37,12 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
         if support >= MINSUP:
             localCandidateItemSet.add(item)
 
+    for itemSet in localCandidateItemSet:
+        itemSet_list = list(itemSet)
+        itemSet_list.sort()
+        print("Frequent", lengthIter, "- itemSet: ", itemSet_list, ", support: ", round(frequencyOfItemSets[itemSet] / len(transactionList), 4))
+    print("============================= Frequent", lengthIter, "- itemSet count: ", len(localCandidateItemSet), "=============================")
+    print(" ")
     return localCandidateItemSet
 
 def joinSet(itemSet, itemSetLength):
@@ -168,7 +174,9 @@ def calculateMeasures(itemSetMeasures, k):
     confidence = getConfidence(itemSetMeasures.itemset)
     lift = getLift(itemSetMeasures.itemset, support)
     itemSetMeasures.measures = [support, confidence, lift]
-    print(k, "-itemSet to pass to dominance: ", itemSetMeasures.itemset, itemSetMeasures.measures)
+    itemSet_list = list(itemSetMeasures.itemset)
+    itemSet_list.sort()
+    print(k, "-itemSet to pass to dominance: ", itemSet_list, itemSetMeasures.measures)
 
 
 def generateLargeItemSets(candidateItemSet):
@@ -181,7 +189,8 @@ def generateLargeItemSets(candidateItemSet):
             print("============================== Cannot generate any", lengthIter, "- itemSets after union ==============================")
             break
         
-        if lengthIter > 3:
+        # start dominance depending on user input
+        if (lengthIter >= k_ItemsetStartDominance) and (lengthIter > 3):
             currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
             if currentLargeItemSet == set([]):
                 print("=========================== There are no", lengthIter, "- itemSets that satisfy MINSUP ===========================")
@@ -201,17 +210,19 @@ def generateLargeItemSets(candidateItemSet):
             undominatedItemsets = executeDominance(finalItemSets)
             currentLargeItemSet = set([])
             for itemSet in undominatedItemsets:
-                print("Dominance result: ", itemSet.itemset, itemSet.measures)
+                itemSet_list = list(itemSet.itemset)
+                itemSet_list.sort()
+                print("Dominance result: ", itemSet_list, itemSet.measures)
                 currentLargeItemSet.add(itemSet.itemset)
             print("================================================================================================")
 
         else:
             currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
 
-        for currentLargeItem in currentLargeItemSet:
-            print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 4))
-        print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
-        print(" ")
+        #for currentLargeItem in currentLargeItemSet:
+        #    print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 4))
+        #print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
+        #print(" ")
         lengthIter += 1
 
     finalLargeItemSet = []
@@ -225,16 +236,17 @@ def generateAssociationRules():
     associationRules = []
     for key, value in list(largeItemSets.items())[1:]:
         for item in value:
-            subsets = map(frozenset, [x for x in getSubsets(item)])
+            item = list(item)
+            item.sort()
+            subsets = map(list, [x for x in getSubsets(item)])
             for element in subsets:
-                remaining = item.difference(element)
+                #remaining = item.difference(element)
+                remaining = list(item for item in item if item not in element)
                 if len(remaining) > 0:
-                    if (float(frequencyOfItemSets[remaining]) / len(transactionList) == 0):
-                        confidence = 0
-                    else:
-                        confidence = (float(frequencyOfItemSets[item]) / len(transactionList)) / (float(frequencyOfItemSets[remaining]) / len(transactionList))
+                    confidence = (float(frequencyOfItemSets[frozenset(item)]) / len(transactionList)) / (float(frequencyOfItemSets[frozenset(remaining)]) / len(transactionList))
+                    lift = float(frequencyOfItemSets[frozenset(item)]) / len(transactionList) / ((float(frequencyOfItemSets[frozenset(element)]) / len(transactionList) * float(frequencyOfItemSets[frozenset(remaining)]) / len(transactionList)))
                     if confidence > MINCONF:
-                        associationRules.append(((tuple(element), tuple(remaining)), confidence))
+                        associationRules.append(((tuple(element), tuple(remaining)), confidence, lift))
 
     return associationRules
 
@@ -242,21 +254,26 @@ def printAll(finalLargeItemSets, associationRules):
     #for item, support in sorted(finalLargeItemSets, key=lambda x: x[1]):
     #    print("item: %s , %.2f" % (str(item), support))
 
-    for rule, confidence in sorted(associationRules, key=lambda x: x[1]):
+    confidenceSum = liftSum = 0
+    for rule, confidence, lift in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
-        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 3))
+        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 4), ", lift: ", round(lift, 4))
+        confidenceSum += confidence
+        liftSum += lift
+    print("============ Average confidence:", round(confidenceSum/len(associationRules),4), ", Average lift:", round(liftSum/len(associationRules),4),"=============")
     print("============================= Rule count", len(associationRules), "=============================")
 
 if __name__ == "__main__":
     num_args = len(sys.argv)
-    MINSUP = MINCONF = 0
-    if num_args != 4:
-        print("Expected input format: python fileName.py <dataset.csv> <MINSUP> <MINCONF>")
+    MINSUP = MINCONF = k_ItemsetStartDominance = 0
+    if num_args != 5:
+        print("Expected input format: python fileName.py <dataset.csv> <MINSUP> <MINCONF> <k_ItemsetStartDominance>")
         sys.exit()
     else:
         dataSetFile = "./datasets/" + sys.argv[1]
         MINSUP  = float(sys.argv[2])
         MINCONF = float(sys.argv[3])
+        k_ItemsetStartDominance = int(sys.argv[4])
     
     print("========================= Start execution for dataset:", sys.argv[1], "with MINSUP:", MINSUP, "and MINCONF", MINCONF, "=========================")
     startTime = time.time()
@@ -278,4 +295,4 @@ if __name__ == "__main__":
     printAll(finalLargeItemSets, associationRules)
 
     endTime = time.time()
-    print("============================= Total execution time:", endTime - startTime, "seconds =============================")
+    print("============================= Total execution time:", round(endTime - startTime,2), "seconds =============================")

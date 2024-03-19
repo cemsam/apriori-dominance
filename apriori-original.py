@@ -35,7 +35,9 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
             localCandidateItemSet.add(item)
 
     for itemSet in localCandidateItemSet:
-        print("Frequent", lengthIter, "- itemSet: ", itemSet, ", support: ", round(frequencyOfItemSets[itemSet] / len(transactionList), 4))
+        itemSet_list = list(itemSet)
+        itemSet_list.sort()
+        print("Frequent", lengthIter, "- itemSet: ", itemSet_list, ", support: ", round(frequencyOfItemSets[itemSet] / len(transactionList), 4))
     print("============================= Frequent", lengthIter, "- itemSet count: ", len(localCandidateItemSet), "=============================")
     print(" ")
     return localCandidateItemSet
@@ -106,13 +108,17 @@ def generateAssociationRules():
     associationRules = []
     for key, value in list(largeItemSets.items())[1:]:
         for item in value:
-            subsets = map(frozenset, [x for x in getSubsets(item)])
+            item = list(item)
+            item.sort()
+            subsets = map(list, [x for x in getSubsets(item)])
             for element in subsets:
-                remaining = item.difference(element)
+                #remaining = item.difference(element)
+                remaining = list(item for item in item if item not in element)
                 if len(remaining) > 0:
-                    confidence = (float(frequencyOfItemSets[item]) / len(transactionList)) / (float(frequencyOfItemSets[remaining]) / len(transactionList))
+                    confidence = (float(frequencyOfItemSets[frozenset(item)]) / len(transactionList)) / (float(frequencyOfItemSets[frozenset(remaining)]) / len(transactionList))
+                    lift = float(frequencyOfItemSets[frozenset(item)]) / len(transactionList) / ((float(frequencyOfItemSets[frozenset(element)]) / len(transactionList) * float(frequencyOfItemSets[frozenset(remaining)]) / len(transactionList)))
                     if confidence > MINCONF:
-                        associationRules.append(((tuple(element), tuple(remaining)), confidence))
+                        associationRules.append(((tuple(element), tuple(remaining)), confidence, lift))
 
     return associationRules
 
@@ -120,9 +126,13 @@ def printAll(finalLargeItemSets, associationRules):
     #for item, support in sorted(finalLargeItemSets, key=lambda x: x[1]):
     #    print("item: %s , %.2f" % (str(item), support))
 
-    for rule, confidence in sorted(associationRules, key=lambda x: x[1]):
+    confidenceSum = liftSum = 0
+    for rule, confidence, lift in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
-        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 4))
+        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 4), ", lift: ", round(lift, 4))
+        confidenceSum += confidence
+        liftSum += lift
+    print("============ Average confidence:", round(confidenceSum/len(associationRules),4), ", Average lift:", round(liftSum/len(associationRules),4),"=============")
     print("============================= Rule count", len(associationRules), "=============================")
 
 if __name__ == '__main__':
