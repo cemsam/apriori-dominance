@@ -267,14 +267,17 @@ def printAll(finalLargeItemSets, associationRules):
 if __name__ == "__main__":
     num_args = len(sys.argv)
     MINSUP = MINCONF = k_ItemsetStartDominance = 0
-    if num_args != 5:
+    if num_args != 5 and num_args != 4:
         print("Expected input format: python fileName.py <dataset.csv> <MINSUP> <MINCONF> <k_ItemsetStartDominance>")
         sys.exit()
     else:
         dataSetFile = "./datasets/" + sys.argv[1]
         MINSUP  = float(sys.argv[2])
         MINCONF = float(sys.argv[3])
-        k_ItemsetStartDominance = int(sys.argv[4])
+        if num_args == 5:
+            k_ItemsetStartDominance = int(sys.argv[4])
+        else:
+            k_ItemsetStartDominance = 4
     
     print("========================= Start execution for dataset:", sys.argv[1], "with MINSUP:", MINSUP, "and MINCONF", MINCONF, "=========================")
     startTime = time.time()
