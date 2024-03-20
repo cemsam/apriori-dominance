@@ -40,7 +40,7 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
     for itemSet in localCandidateItemSet:
         itemSet_list = list(itemSet)
         itemSet_list.sort()
-        print("Frequent", lengthIter, "- itemSet: ", itemSet_list, ", support: ", round(frequencyOfItemSets[itemSet] / len(transactionList), 4))
+        print("Frequent", lengthIter, "- itemSet:", itemSet_list, ", support:", round(frequencyOfItemSets[itemSet] / len(transactionList), 4))
     print("============================= Frequent", lengthIter, "- itemSet count: ", len(localCandidateItemSet), "=============================")
     print(" ")
     return localCandidateItemSet
@@ -176,7 +176,7 @@ def calculateMeasures(itemSetMeasures, k):
     itemSetMeasures.measures = [support, confidence, lift]
     itemSet_list = list(itemSetMeasures.itemset)
     itemSet_list.sort()
-    print(k, "-itemSet to pass to dominance: ", itemSet_list, itemSetMeasures.measures)
+    print(k, "-itemSet to pass to dominance:", itemSet_list, itemSetMeasures.measures)
 
 
 def generateLargeItemSets(candidateItemSet):
@@ -212,7 +212,7 @@ def generateLargeItemSets(candidateItemSet):
             for itemSet in undominatedItemsets:
                 itemSet_list = list(itemSet.itemset)
                 itemSet_list.sort()
-                print("Dominance result: ", itemSet_list, itemSet.measures)
+                print("Dominance result:", itemSet_list, itemSet.measures)
                 currentLargeItemSet.add(itemSet.itemset)
             print("================================================================================================")
 
@@ -257,7 +257,7 @@ def printAll(finalLargeItemSets, associationRules):
     confidenceSum = liftSum = 0
     for rule, confidence, lift in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
-        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence: ", round(confidence, 4), ", lift: ", round(lift, 4))
+        print("Rule: %s => %s " % (str(pre), str(post)), ", confidence:", round(confidence, 4), ", lift:", round(lift, 4))
         confidenceSum += confidence
         liftSum += lift
     if (len(associationRules) > 0):
@@ -296,4 +296,4 @@ if __name__ == "__main__":
     printAll(finalLargeItemSets, associationRules)
 
     endTime = time.time()
-    print("============================= Total execution time:", round(endTime - startTime,2), "seconds =============================")
+    print("======================== Total execution time:", round(endTime - startTime,2), "seconds ========================")
