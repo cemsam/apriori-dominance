@@ -243,10 +243,11 @@ def generateAssociationRules():
                 #remaining = item.difference(element)
                 remaining = list(item for item in item if item not in element)
                 if len(remaining) > 0:
-                    confidence = (float(frequencyOfItemSets[frozenset(item)]) / len(transactionList)) / (float(frequencyOfItemSets[frozenset(remaining)]) / len(transactionList))
-                    lift = float(frequencyOfItemSets[frozenset(item)]) / len(transactionList) / ((float(frequencyOfItemSets[frozenset(element)]) / len(transactionList) * float(frequencyOfItemSets[frozenset(remaining)]) / len(transactionList)))
-                    if confidence > MINCONF:
-                        associationRules.append(((tuple(element), tuple(remaining)), confidence, lift))
+                    if float(frequencyOfItemSets[frozenset(remaining)]) > 0 and float(frequencyOfItemSets[frozenset(element)] > 0):
+                        confidence = (float(frequencyOfItemSets[frozenset(item)]) / len(transactionList)) / (float(frequencyOfItemSets[frozenset(remaining)]) / len(transactionList))
+                        lift = float(frequencyOfItemSets[frozenset(item)]) / len(transactionList) / ((float(frequencyOfItemSets[frozenset(element)]) / len(transactionList) * float(frequencyOfItemSets[frozenset(remaining)]) / len(transactionList)))
+                        if confidence > MINCONF:
+                            associationRules.append(((tuple(element), tuple(remaining)), confidence, lift))
 
     return associationRules
 
