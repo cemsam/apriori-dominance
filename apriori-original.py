@@ -126,14 +126,9 @@ def printAll(finalLargeItemSets, associationRules):
     #for item, support in sorted(finalLargeItemSets, key=lambda x: x[1]):
     #    print("item: %s , %.2f" % (str(item), support))
 
-    confidenceSum = liftSum = 0
     for rule, confidence, lift in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
         print("Rule: %s => %s " % (str(pre), str(post)), ", confidence:", round(confidence, 4), ", lift:", round(lift, 4))
-        confidenceSum += confidence
-        liftSum += lift
-    if (len(associationRules) > 0):
-        print("============ Average confidence:", round(confidenceSum/len(associationRules),4), ", Average lift:", round(liftSum/len(associationRules),4),"=============")
     print("============================= Rule count", len(associationRules), "=============================")
 
 if __name__ == '__main__':
