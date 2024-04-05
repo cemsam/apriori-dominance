@@ -333,7 +333,7 @@ if __name__ == "__main__":
             k_ItemsetStartDominance = 4
     
     print("========================= Start execution for dataset:", sys.argv[1], "with MINSUP:", MINSUP, "and MINCONF", MINCONF, "=========================")
-    startTime = time.time()
+    startTime = time.perf_counter()
     rowRecords = readFromInputFile(dataSetFile)
     itemSet, transactionList = extractItemSetAndTransactionList(rowRecords)
     
@@ -351,5 +351,5 @@ if __name__ == "__main__":
     # print finalLargeItemSets and associationRules
     printAll(finalLargeItemSets, associationRules)
     
-    endTime = time.time()
+    endTime = time.perf_counter()
     print("============================= Total execution time:", endTime - startTime, "seconds =============================")
