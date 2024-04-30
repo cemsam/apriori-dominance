@@ -1,7 +1,5 @@
 import time
 import sys
-#import pandas as pd
-#from mlxtend.frequent_patterns  import association_rules
 from collections import defaultdict
 from itertools import chain, combinations
 
@@ -12,7 +10,6 @@ def readFromInputFile(fileName):
         row = row.strip().rstrip(",")
         rowRecords = frozenset(row.split(","))
         yield rowRecords
-        #print("rowRecords in csv file: ", rowRecords)
 
 def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter):
     localCandidateItemSet = set()
@@ -25,12 +22,9 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
                 frequencyOfItemSets[item] += 1
                 localSet[item] += 1
 
-    #print("localSet: ", localSet)
-
     # if item's frequency is bigger than support add to new set
     for item, count in localSet.items():
         support = round(float(count) / len(transactionList), 4)
-        #print("Item: ", item, " support: ", support)
         if support >= MINSUP:
             localCandidateItemSet.add(item)
 
@@ -40,6 +34,7 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
         print("Frequent", lengthIter, "- itemSet:", itemSet_list, ", support:", round(frequencyOfItemSets[itemSet] / len(transactionList), 4))
     print("============================= Frequent", lengthIter, "- itemSet count: ", len(localCandidateItemSet), "=============================")
     print(" ")
+
     return localCandidateItemSet
 
 def joinSet(itemSet, itemSetLength):
@@ -57,7 +52,7 @@ def joinSet(itemSet, length):
 '''
 
 def getSubsets(arr):
-    # Return non empty subsets of arr
+    # Return non empty subsets
     return chain(*[combinations(arr, i + 1) for i, a in enumerate(arr)])
 
 def extractItemSetAndTransactionList(rowRecords):
@@ -70,8 +65,6 @@ def extractItemSetAndTransactionList(rowRecords):
         for item in transaction:
             itemSet.add(frozenset([item]))
 
-    #print("itemset: ", itemSet)
-    #print("transactionList: ", transactionList)
     return itemSet, transactionList
 
 def generateLargeItemSets(candidateItemSet):
@@ -84,17 +77,11 @@ def generateLargeItemSets(candidateItemSet):
             print("============================== Cannot generate any", lengthIter, "- itemSets after union ==============================")
             break
 
-        #print("joinSet: ", newCandidateItemSet)
         currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
         if currentLargeItemSet == set([]):
             print("=========================== There are no", lengthIter, "- itemSets that satisfy MINSUP ===========================")
             break
 
-        #for currentLargeItem in currentLargeItemSet:
-        #    print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 4))
-        #print("For length: ", lengthIter, " candidateItemSet: ", candidateeItemSet)
-        #print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
-        #print(" ")
         lengthIter += 1
 
     finalLargeItemSet = []
@@ -122,10 +109,7 @@ def generateAssociationRules():
 
     return associationRules
 
-def printAll(finalLargeItemSets, associationRules):
-    #for item, support in sorted(finalLargeItemSets, key=lambda x: x[1]):
-    #    print("item: %s , %.2f" % (str(item), support))
-
+def printAll(associationRules):
     for rule, confidence, lift in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
         print("Rule: %s => %s " % (str(pre), str(post)), ", confidence:", round(confidence, 4), ", lift:", round(lift, 4))
@@ -158,8 +142,8 @@ if __name__ == '__main__':
     associationRules = dict()
     associationRules = generateAssociationRules()
 
-    # print finalLargeItemSets and associationRules
-    printAll(finalLargeItemSets, associationRules)
+    # print associationRules
+    printAll(associationRules)
     
     endTime = time.time()
     print("======================== Total execution time:", round(endTime - startTime,2), "seconds ========================")

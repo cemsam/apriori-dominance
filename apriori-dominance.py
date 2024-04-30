@@ -1,7 +1,5 @@
 import time
 import sys
-#import pandas as pd
-#from mlxtend.frequent_patterns import association_rules
 from collections import defaultdict
 from itertools import chain, combinations
 
@@ -16,7 +14,6 @@ def readFromInputFile(fileName):
         row = row.strip().rstrip(",")
         rowRecords = frozenset(row.split(","))
         yield rowRecords
-        #print("rowRecords in csv file: ", rowRecords)
 
 def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter):
     localCandidateItemSet = set()
@@ -28,12 +25,9 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
                 frequencyOfItemSets[item] += 1
                 localSet[item] += 1
 
-    #print("localSet: ", localSet)
-
     # if item's frequency is bigger than support add to new set
     for item, count in localSet.items():
         support = round(float(count) / len(transactionList), 4)
-        #print("Item: ", item, " support: ", support)
         if support >= MINSUP:
             localCandidateItemSet.add(item)
 
@@ -43,13 +37,14 @@ def getItemSetWithMinSup(itemSet, transactionList, MINSUP, frequencyOfItemSets, 
         print("Frequent", lengthIter, "- itemSet:", itemSet_list, ", support:", round(frequencyOfItemSets[itemSet] / len(transactionList), 4))
     print("============================= Frequent", lengthIter, "- itemSet count: ", len(localCandidateItemSet), "=============================")
     print(" ")
+
     return localCandidateItemSet
 
 def joinSet(itemSet, itemSetLength):
         return set([i.union(j) for i in itemSet for j in itemSet if len(i.union(j)) == itemSetLength])
 
 def getSubsets(arr):
-    # Return non empty subsets of arr
+    # Return non empty subsets
     return chain(*[combinations(arr, i + 1) for i, a in enumerate(arr)])
 
 def extractItemSetAndTransactionList(rowRecords):
@@ -62,75 +57,69 @@ def extractItemSetAndTransactionList(rowRecords):
         for item in transaction:
             itemSet.add(frozenset([item]))
 
-    #print("itemset: ", itemSet)
-    #print("transactionList: ", transactionList)
     return itemSet, transactionList
 
 # Dominance algorithms
-def getReferenceRule(s):
+def getReferenceItemset(s):
     candidateReferenceList = list(s[0].measures)
-    for r in s:
-        for i in range(len(r.measures)):
-            candidateReferenceList[i] = max(r.measures[i], candidateReferenceList[i])
+    for i in s:
+        for n in range(len(i.measures)):
+            candidateReferenceList[n] = max(i.measures[n], candidateReferenceList[n])
         
     return candidateReferenceList
 
-def degSim(s,r2):
-    return sum([abs(x-y) for x,y in zip(s, r2.measures)])/len(s)
+def degSim(s,i2):
+    return sum([abs(x-y) for x,y in zip(s, i2.measures)])/len(s)
 
 def getrMinDegSim(s, reference):
     bestDegSim = degSim(reference, s[0])
-    rStar = s[0]
-    for r in s:
-        auxDegSim = degSim(reference, r)
-        if(auxDegSim < bestDegSim): #lower is better
+    iStar = s[0]
+    for i in s:
+        auxDegSim = degSim(reference, i)
+        if(auxDegSim < bestDegSim):
             bestDegSim = auxDegSim
-            rStar = r
-    return rStar
+            iStar = i
+    return iStar
 
-#Dominates = True of all measures of self are greather or equal than measures in r2
-def dominates(s, r2):
-    for x,y in zip(r2.measures, s.measures):
+def dominates(s, i2):
+    for x,y in zip(i2.measures, s.measures):
         if (x>y): return False
     return True
 
-#Strictly Dominates = Dominates and there is at least measure in self that is better than in r2
-def strictlyDominates(s, r2):
-    if(dominates(s, r2) and strictlyDominatesOneMeasure(s, r2)):
+def strictlyDominates(s, i2):
+    if(dominates(s, i2) and strictlyDominatesOneMeasure(s, i2)):
         return True
     return False
 
-#Strictly in one measure
-def strictlyDominatesOneMeasure(s, r2):
-    for x,y in zip(s.measures, r2.measures):
+def strictlyDominatesOneMeasure(s, i2):
+    for x,y in zip(s.measures, i2.measures):
         if (x>y): return True
     return False
     
-def getUndominatedRules(s, referenceRule):
-    selfC = s.copy() #Candidate undominated rules
-    selfE = s.copy() #Current undominated rules
-    sky = [] #Final undominated rules
+def getUndominatedItemsets(s, referenceItemset):
+    selfC = s.copy()
+    selfE = s.copy()
+    sky = []
 
-    while(selfC): #While there are candidates
-        rStar = getrMinDegSim(selfC, referenceRule) #r* <- r of C having min(DegSim(r,reference))
-        selfC.remove(rStar) #C <- C\{r*}
+    while(selfC):
+        iStar = getrMinDegSim(selfC, referenceItemset)
+        selfC.remove(iStar)
         Sr = []
-        sky.append(rStar)
+        sky.append(iStar)
     
         for e in selfE:
-            if(strictlyDominates(rStar, e)):
+            if(strictlyDominates(iStar, e)):
                 selfC.remove(e)
-            elif(strictlyDominatesOneMeasure(e, rStar)):
+            elif(strictlyDominatesOneMeasure(e, iStar)):
                 Sr.append(e)
-
-        selfE = Sr #New current candidates are only undominated rules that dominates rStar in at least one measure
+        selfE = Sr
 
     return sky
 
-def executeDominance(finalTables):
-    referenceRule = getReferenceRule(finalTables)
-    undominatedRules = getUndominatedRules(finalTables, referenceRule)
-    return undominatedRules
+def executeDominance(finalItemsets):
+    referenceItemset = getReferenceItemset(finalItemsets)
+    undominatedItemsets = getUndominatedItemsets(finalItemsets, referenceItemset)
+    return undominatedItemsets
 
 def getConfidence(itemSet):
     itemSetSupport = 0
@@ -219,10 +208,6 @@ def generateLargeItemSets(candidateItemSet):
         else:
             currentLargeItemSet = getItemSetWithMinSup(newCandidateItemSet, transactionList, MINSUP, frequencyOfItemSets, lengthIter)
 
-        #for currentLargeItem in currentLargeItemSet:
-        #    print("Frequent", lengthIter, "- itemSet: ", currentLargeItem, ", support: ", round(frequencyOfItemSets[currentLargeItem] / len(transactionList), 4))
-        #print("============================= Frequent", lengthIter, "- itemSet count: ", len(currentLargeItemSet), "=============================")
-        #print(" ")
         lengthIter += 1
 
     finalLargeItemSet = []
@@ -251,10 +236,7 @@ def generateAssociationRules():
 
     return associationRules
 
-def printAll(finalLargeItemSets, associationRules):
-    #for item, support in sorted(finalLargeItemSets, key=lambda x: x[1]):
-    #    print("item: %s , %.2f" % (str(item), support))
-
+def printAll(associationRules):
     for rule, confidence, lift in sorted(associationRules, key=lambda x: x[1]):
         pre, post = rule
         print("Rule: %s => %s " % (str(pre), str(post)), ", confidence:", round(confidence, 4), ", lift:", round(lift, 4))
@@ -291,8 +273,8 @@ if __name__ == "__main__":
     associationRules = dict()
     associationRules = generateAssociationRules()
 
-    # print finalLargeItemSets and associationRules
-    printAll(finalLargeItemSets, associationRules)
+    # print associationRules
+    printAll(associationRules)
 
     endTime = time.time()
     print("======================== Total execution time:", round(endTime - startTime,2), "seconds ========================")
